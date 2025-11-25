@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../models/index.js';
+import { Op } from 'sequelize';
+
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -11,27 +13,32 @@ export const register = async (req, res) => {
   try {
     const { username, email, password, full_name, role } = req.body;
 
+    // validasi sederhana
+    if (!username || !email || !password || !full_name) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    // cek existing user (menggunakan Op.or)
     const userExists = await User.findOne({
       where: {
-        $or: [{ email }, { username }]
+        [Op.or]: [{ email }, { username }]
       }
     });
 
     if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists'
-      });
+      return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
+    // create user (model hook akan hash password)
     const user = await User.create({
       username,
       email,
-      password,
+      password,     // transient; model hook akan hash ini
       full_name,
       role: role || 'editor'
     });
 
+    // jangan kirim password kembali; buat response aman
     const token = generateToken(user.id);
 
     res.status(201).json({
@@ -46,6 +53,16 @@ export const register = async (req, res) => {
       token
     });
   } catch (error) {
+    // tangani error constraint (unique) dengan lebih jelas
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Unique constraint error',
+        fields: error.errors.map(e => ({ field: e.path, message: e.message }))
+      });
+    }
+
+    console.error('Register error:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating user',
@@ -53,7 +70,6 @@ export const register = async (req, res) => {
     });
   }
 };
-
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
