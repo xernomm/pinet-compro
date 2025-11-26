@@ -5,7 +5,7 @@ export const getAllClients = async (req, res) => {
   try {
     const { is_active, is_featured, industry, search } = req.query;
     const where = {};
-    
+
     if (is_active !== undefined) where.is_active = is_active === 'true';
     if (is_featured !== undefined) where.is_featured = is_featured === 'true';
     if (industry) where.industry = industry;
@@ -87,7 +87,17 @@ export const getClientBySlug = async (req, res) => {
 
 export const createClient = async (req, res) => {
   try {
-    const client = await Client.create(req.body);
+    const {
+      name, slug, description, logo_url, website_url, industry,
+      project_description, testimonial, testimonial_author, testimonial_position,
+      collaboration_since, order_number, is_featured, is_active
+    } = req.body;
+
+    const client = await Client.create({
+      name, slug, description, logo_url, website_url, industry,
+      project_description, testimonial, testimonial_author, testimonial_position,
+      collaboration_since, order_number, is_featured, is_active
+    });
 
     res.status(201).json({
       success: true,
@@ -114,7 +124,17 @@ export const updateClient = async (req, res) => {
       });
     }
 
-    await client.update(req.body);
+    const {
+      name, slug, description, logo_url, website_url, industry,
+      project_description, testimonial, testimonial_author, testimonial_position,
+      collaboration_since, order_number, is_featured, is_active
+    } = req.body;
+
+    await client.update({
+      name, slug, description, logo_url, website_url, industry,
+      project_description, testimonial, testimonial_author, testimonial_position,
+      collaboration_since, order_number, is_featured, is_active
+    });
 
     res.json({
       success: true,

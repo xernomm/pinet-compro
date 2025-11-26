@@ -5,7 +5,7 @@ export const getAllPartners = async (req, res) => {
   try {
     const { is_active, partnership_type, search } = req.query;
     const where = {};
-    
+
     if (is_active !== undefined) where.is_active = is_active === 'true';
     if (partnership_type) where.partnership_type = partnership_type;
     if (search) {
@@ -86,7 +86,15 @@ export const getPartnerBySlug = async (req, res) => {
 
 export const createPartner = async (req, res) => {
   try {
-    const partner = await Partner.create(req.body);
+    const {
+      name, slug, description, logo_url, website_url, partnership_type,
+      partnership_since, order_number, is_active
+    } = req.body;
+
+    const partner = await Partner.create({
+      name, slug, description, logo_url, website_url, partnership_type,
+      partnership_since, order_number, is_active
+    });
 
     res.status(201).json({
       success: true,
@@ -113,7 +121,15 @@ export const updatePartner = async (req, res) => {
       });
     }
 
-    await partner.update(req.body);
+    const {
+      name, slug, description, logo_url, website_url, partnership_type,
+      partnership_since, order_number, is_active
+    } = req.body;
+
+    await partner.update({
+      name, slug, description, logo_url, website_url, partnership_type,
+      partnership_since, order_number, is_active
+    });
 
     res.json({
       success: true,

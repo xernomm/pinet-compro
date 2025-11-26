@@ -5,7 +5,7 @@ export const getAllProducts = async (req, res) => {
   try {
     const { is_active, is_featured, category, search, page = 1, limit = 10 } = req.query;
     const where = {};
-    
+
     if (is_active !== undefined) where.is_active = is_active === 'true';
     if (is_featured !== undefined) where.is_featured = is_featured === 'true';
     if (category) where.category = category;
@@ -93,7 +93,17 @@ export const getProductBySlug = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const {
+      name, slug, category, short_description, description, features, benefits,
+      specifications, target_segment, image_url, gallery, brochure_url, video_url,
+      price_range, order_number, is_featured, is_active, meta_title, meta_description
+    } = req.body;
+
+    const product = await Product.create({
+      name, slug, category, short_description, description, features, benefits,
+      specifications, target_segment, image_url, gallery, brochure_url, video_url,
+      price_range, order_number, is_featured, is_active, meta_title, meta_description
+    });
 
     res.status(201).json({
       success: true,
@@ -120,7 +130,17 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    await product.update(req.body);
+    const {
+      name, slug, category, short_description, description, features, benefits,
+      specifications, target_segment, image_url, gallery, brochure_url, video_url,
+      price_range, order_number, is_featured, is_active, meta_title, meta_description
+    } = req.body;
+
+    await product.update({
+      name, slug, category, short_description, description, features, benefits,
+      specifications, target_segment, image_url, gallery, brochure_url, video_url,
+      price_range, order_number, is_featured, is_active, meta_title, meta_description
+    });
 
     res.json({
       success: true,

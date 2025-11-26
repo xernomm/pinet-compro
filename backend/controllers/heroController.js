@@ -5,7 +5,7 @@ export const getAllHeroes = async (req, res) => {
   try {
     const { is_active } = req.query;
     const where = {};
-    
+
     if (is_active !== undefined) {
       where.is_active = is_active === 'true';
     }
@@ -55,7 +55,15 @@ export const getHeroById = async (req, res) => {
 
 export const createHero = async (req, res) => {
   try {
-    const hero = await Hero.create(req.body);
+    const {
+      title, subtitle, description, image_url, button_text, button_link,
+      order_number, is_active
+    } = req.body;
+
+    const hero = await Hero.create({
+      title, subtitle, description, image_url, button_text, button_link,
+      order_number, is_active
+    });
 
     res.status(201).json({
       success: true,
@@ -82,7 +90,15 @@ export const updateHero = async (req, res) => {
       });
     }
 
-    await hero.update(req.body);
+    const {
+      title, subtitle, description, image_url, button_text, button_link,
+      order_number, is_active
+    } = req.body;
+
+    await hero.update({
+      title, subtitle, description, image_url, button_text, button_link,
+      order_number, is_active
+    });
 
     res.json({
       success: true,

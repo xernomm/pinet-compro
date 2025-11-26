@@ -5,7 +5,7 @@ export const getAllCareers = async (req, res) => {
   try {
     const { is_active, is_featured, department, employment_type, experience_level, status, search, page = 1, limit = 10 } = req.query;
     const where = {};
-    
+
     if (is_active !== undefined) where.is_active = is_active === 'true';
     if (is_featured !== undefined) where.is_featured = is_featured === 'true';
     if (department) where.department = department;
@@ -132,7 +132,19 @@ export const getOpenPositions = async (req, res) => {
 
 export const createCareer = async (req, res) => {
   try {
-    const career = await Career.create(req.body);
+    const {
+      job_title, slug, department, location, employment_type, experience_level,
+      salary_range, description, responsibilities, requirements, qualifications,
+      benefits, application_deadline, contact_email, application_url,
+      is_featured, is_active, status
+    } = req.body;
+
+    const career = await Career.create({
+      job_title, slug, department, location, employment_type, experience_level,
+      salary_range, description, responsibilities, requirements, qualifications,
+      benefits, application_deadline, contact_email, application_url,
+      is_featured, is_active, status
+    });
 
     res.status(201).json({
       success: true,
@@ -159,7 +171,19 @@ export const updateCareer = async (req, res) => {
       });
     }
 
-    await career.update(req.body);
+    const {
+      job_title, slug, department, location, employment_type, experience_level,
+      salary_range, description, responsibilities, requirements, qualifications,
+      benefits, application_deadline, contact_email, application_url,
+      is_featured, is_active, status
+    } = req.body;
+
+    await career.update({
+      job_title, slug, department, location, employment_type, experience_level,
+      salary_range, description, responsibilities, requirements, qualifications,
+      benefits, application_deadline, contact_email, application_url,
+      is_featured, is_active, status
+    });
 
     res.json({
       success: true,

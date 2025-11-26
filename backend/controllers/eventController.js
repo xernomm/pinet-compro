@@ -5,7 +5,7 @@ export const getAllEvents = async (req, res) => {
   try {
     const { is_published, is_featured, event_type, status, is_online, search, page = 1, limit = 10 } = req.query;
     const where = {};
-    
+
     if (is_published !== undefined) where.is_published = is_published === 'true';
     if (is_featured !== undefined) where.is_featured = is_featured === 'true';
     if (event_type) where.event_type = event_type;
@@ -124,7 +124,19 @@ export const getUpcomingEvents = async (req, res) => {
 
 export const createEvent = async (req, res) => {
   try {
-    const event = await Event.create(req.body);
+    const {
+      title, slug, description, event_type, start_date, end_date, start_time, end_time,
+      location, venue, address, is_online, meeting_link, featured_image, gallery,
+      organizer, contact_person, contact_email, contact_phone, registration_url,
+      max_participants, is_featured, is_published, status
+    } = req.body;
+
+    const event = await Event.create({
+      title, slug, description, event_type, start_date, end_date, start_time, end_time,
+      location, venue, address, is_online, meeting_link, featured_image, gallery,
+      organizer, contact_person, contact_email, contact_phone, registration_url,
+      max_participants, is_featured, is_published, status
+    });
 
     res.status(201).json({
       success: true,
@@ -151,7 +163,19 @@ export const updateEvent = async (req, res) => {
       });
     }
 
-    await event.update(req.body);
+    const {
+      title, slug, description, event_type, start_date, end_date, start_time, end_time,
+      location, venue, address, is_online, meeting_link, featured_image, gallery,
+      organizer, contact_person, contact_email, contact_phone, registration_url,
+      max_participants, is_featured, is_published, status
+    } = req.body;
+
+    await event.update({
+      title, slug, description, event_type, start_date, end_date, start_time, end_time,
+      location, venue, address, is_online, meeting_link, featured_image, gallery,
+      organizer, contact_person, contact_email, contact_phone, registration_url,
+      max_participants, is_featured, is_published, status
+    });
 
     res.json({
       success: true,

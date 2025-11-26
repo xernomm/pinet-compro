@@ -5,7 +5,7 @@ export const getAllServices = async (req, res) => {
   try {
     const { is_active, search } = req.query;
     const where = {};
-    
+
     if (is_active !== undefined) where.is_active = is_active === 'true';
     if (search) {
       where[Op.or] = [
@@ -85,7 +85,15 @@ export const getServiceBySlug = async (req, res) => {
 
 export const createService = async (req, res) => {
   try {
-    const service = await Service.create(req.body);
+    const {
+      name, slug, short_description, description, icon, image_url,
+      order_number, is_active
+    } = req.body;
+
+    const service = await Service.create({
+      name, slug, short_description, description, icon, image_url,
+      order_number, is_active
+    });
 
     res.status(201).json({
       success: true,
@@ -112,7 +120,15 @@ export const updateService = async (req, res) => {
       });
     }
 
-    await service.update(req.body);
+    const {
+      name, slug, short_description, description, icon, image_url,
+      order_number, is_active
+    } = req.body;
+
+    await service.update({
+      name, slug, short_description, description, icon, image_url,
+      order_number, is_active
+    });
 
     res.json({
       success: true,

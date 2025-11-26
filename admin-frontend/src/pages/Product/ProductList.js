@@ -1,0 +1,440 @@
+import React, { useState, useEffect } from 'react';
+import { productAPI } from '../../api/apiService';
+import { toast } from 'react-toastify';
+import Modal from '../../components/Common/Modal';
+import { getImageUrl } from '../../utils/imageUtils';
+
+const ProductList = () => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentProduct, setCurrentProduct] = useState(null);
+    const [formData, setFormData] = useState({
+        name: '',
+        slug: '',
+        category: '',
+        short_description: '',
+        description: '',
+        features: '',
+        benefits: '',
+        specifications: '',
+        target_segment: '',
+        image_url: '',
+        gallery: '',
+        brochure_url: '',
+        video_url: '',
+        price_range: '',
+        order_number: 0,
+        is_featured: false,
+        is_active: true,
+        meta_title: '',
+        meta_description: '',
+    });
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const fetchProducts = async () => {
+        try {
+            const response = await productAPI.getAll();
+            setProducts(response.data.data || response.data);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            toast.error('Failed to load products');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const openCreateModal = () => {
+        setCurrentProduct(null);
+        setFormData({
+            name: '',
+            slug: '',
+            category: '',
+            short_description: '',
+            description: '',
+            features: '',
+            benefits: '',
+            specifications: '',
+            target_segment: '',
+            image_url: '',
+            gallery: '',
+            brochure_url: '',
+            video_url: '',
+            price_range: '',
+            order_number: 0,
+            is_featured: false,
+            is_active: true,
+            meta_title: '',
+            meta_description: '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const openEditModal = (product) => {
+        setCurrentProduct(product);
+        setFormData({
+            name: product.name || '',
+            slug: product.slug || '',
+            category: product.category || '',
+            short_description: product.short_description || '',
+            description: product.description || '',
+            features: Array.isArray(product.features) ? product.features.join('\n') : product.features || '',
+            benefits: Array.isArray(product.benefits) ? product.benefits.join('\n') : product.benefits || '',
+            specifications: typeof product.specifications === 'object' ? JSON.stringify(product.specifications, null, 2) : product.specifications || '',
+            target_segment: product.target_segment || '',
+            image_url: product.image_url || '',
+            gallery: Array.isArray(product.gallery) ? product.gallery.join('\n') : product.gallery || '',
+            brochure_url: product.brochure_url || '',
+            video_url: product.video_url || '',
+            price_range: product.price_range || '',
+            order_number: product.order_number || 0,
+            is_featured: product.is_featured ?? false,
+            is_active: product.is_active ?? true,
+            meta_title: product.meta_title || '',
+            meta_description: product.meta_description || '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const submitData = {
+                ...formData,
+                features: formData.features ? formData.features.split('\n').filter(f => f.trim()) : [],
+                benefits: formData.benefits ? formData.benefits.split('\n').filter(b => b.trim()) : [],
+                gallery: formData.gallery ? formData.gallery.split('\n').filter(g => g.trim()) : [],
+            };
+
+            // Try to parse specifications as JSON if it looks like JSON
+            if (formData.specifications) {
+                try {
+                    submitData.specifications = JSON.parse(formData.specifications);
+                } catch {
+                    submitData.specifications = formData.specifications;
+                }
+            }
+
+            if (currentProduct) {
+                await productAPI.update(currentProduct.id, submitData);
+                toast.success('Product updated successfully');
+            } else {
+                await productAPI.create(submitData);
+                toast.success('Product created successfully');
+            }
+            setIsModalOpen(false);
+            fetchProducts();
+        } catch (error) {
+            console.error('Error saving product:', error);
+            toast.error('Failed to save product');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this product?')) {
+            try {
+                await productAPI.delete(id);
+                toast.success('Product deleted successfully');
+                fetchProducts();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                toast.error('Failed to delete product');
+            }
+        }
+    };
+
+    if (loading) return <div>Loading...</div>;
+
+    return (
+        <div className="page-container">
+            <div className="page-header">
+                <h2>Products</h2>
+                <button
+                    onClick={openCreateModal}
+                    className="btn btn-primary"
+                >
+                    Add New Product
+                </button>
+            </div>
+
+            <div className="content-card table-container">
+                <table className="data-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Order</th>
+                            <th>Featured</th>
+                            <th>Status</th>
+                            <th className="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {products.map((product) => (
+                            <tr key={product.id}>
+                                <td>
+                                    {product.image_url && (
+                                        <img src={getImageUrl(product.image_url)} alt={product.name} style={{ height: '40px', width: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                    )}
+                                </td>
+                                <td>{product.name}</td>
+                                <td>{product.category}</td>
+                                <td>{product.order_number}</td>
+                                <td>
+                                    {product.is_featured && <span className="status-badge status-active">Featured</span>}
+                                </td>
+                                <td>
+                                    <span className={`status-badge ${product.is_active ? 'status-active' : 'status-inactive'}`}>
+                                        {product.is_active ? 'Active' : 'Inactive'}
+                                    </span>
+                                </td>
+                                <td className="text-right">
+                                    <button
+                                        onClick={() => openEditModal(product)}
+                                        className="btn btn-sm btn-secondary mr-2"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(product.id)}
+                                        className="btn btn-sm btn-danger"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={currentProduct ? 'Edit Product' : 'Add New Product'}
+            >
+                <form onSubmit={handleSubmit} style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                    <div className="form-group">
+                        <label>Name *</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            className="form-control"
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Slug *</label>
+                        <input
+                            type="text"
+                            name="slug"
+                            value={formData.slug}
+                            onChange={handleInputChange}
+                            className="form-control"
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Category</label>
+                        <input
+                            type="text"
+                            name="category"
+                            value={formData.category}
+                            onChange={handleInputChange}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Short Description</label>
+                        <textarea
+                            name="short_description"
+                            value={formData.short_description}
+                            onChange={handleInputChange}
+                            rows="2"
+                            className="form-control"
+                        ></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Description</label>
+                        <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleInputChange}
+                            rows="4"
+                            className="form-control"
+                        ></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Features (one per line)</label>
+                        <textarea
+                            name="features"
+                            value={formData.features}
+                            onChange={handleInputChange}
+                            rows="3"
+                            className="form-control"
+                            placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
+                        ></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Benefits (one per line)</label>
+                        <textarea
+                            name="benefits"
+                            value={formData.benefits}
+                            onChange={handleInputChange}
+                            rows="3"
+                            className="form-control"
+                            placeholder="Benefit 1&#10;Benefit 2&#10;Benefit 3"
+                        ></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Specifications (JSON format)</label>
+                        <textarea
+                            name="specifications"
+                            value={formData.specifications}
+                            onChange={handleInputChange}
+                            rows="3"
+                            className="form-control"
+                            placeholder='{"weight": "1kg", "dimensions": "10x10x10cm"}'
+                        ></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Target Segment</label>
+                        <input
+                            type="text"
+                            name="target_segment"
+                            value={formData.target_segment}
+                            onChange={handleInputChange}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Image URL</label>
+                        <input
+                            type="text"
+                            name="image_url"
+                            value={formData.image_url}
+                            onChange={handleInputChange}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Gallery URLs (one per line)</label>
+                        <textarea
+                            name="gallery"
+                            value={formData.gallery}
+                            onChange={handleInputChange}
+                            rows="2"
+                            className="form-control"
+                            placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+                        ></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Brochure URL</label>
+                        <input
+                            type="text"
+                            name="brochure_url"
+                            value={formData.brochure_url}
+                            onChange={handleInputChange}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Video URL</label>
+                        <input
+                            type="text"
+                            name="video_url"
+                            value={formData.video_url}
+                            onChange={handleInputChange}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Price Range</label>
+                        <input
+                            type="text"
+                            name="price_range"
+                            value={formData.price_range}
+                            onChange={handleInputChange}
+                            className="form-control"
+                            placeholder="e.g., $100 - $500"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Order Number</label>
+                        <input
+                            type="number"
+                            name="order_number"
+                            value={formData.order_number}
+                            onChange={handleInputChange}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Meta Title</label>
+                        <input
+                            type="text"
+                            name="meta_title"
+                            value={formData.meta_title}
+                            onChange={handleInputChange}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Meta Description</label>
+                        <textarea
+                            name="meta_description"
+                            value={formData.meta_description}
+                            onChange={handleInputChange}
+                            rows="2"
+                            className="form-control"
+                        ></textarea>
+                    </div>
+                    <div className="form-group flex items-center">
+                        <input
+                            type="checkbox"
+                            name="is_featured"
+                            checked={formData.is_featured}
+                            onChange={handleInputChange}
+                            style={{ marginRight: '10px' }}
+                        />
+                        <label style={{ margin: 0 }}>Featured</label>
+                    </div>
+                    <div className="form-group flex items-center">
+                        <input
+                            type="checkbox"
+                            name="is_active"
+                            checked={formData.is_active}
+                            onChange={handleInputChange}
+                            style={{ marginRight: '10px' }}
+                        />
+                        <label style={{ margin: 0 }}>Active</label>
+                    </div>
+                    <div className="flex justify-end pt-4">
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                        >
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+        </div>
+    );
+};
+
+export default ProductList;

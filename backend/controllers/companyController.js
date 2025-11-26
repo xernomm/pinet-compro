@@ -3,7 +3,7 @@ import { CompanyInfo } from '../models/index.js';
 export const getCompanyInfo = async (req, res) => {
   try {
     let company = await CompanyInfo.findOne();
-    
+
     if (!company) {
       company = await CompanyInfo.create({
         company_name: 'Your Company Name',
@@ -27,11 +27,25 @@ export const getCompanyInfo = async (req, res) => {
 export const updateCompanyInfo = async (req, res) => {
   try {
     let company = await CompanyInfo.findOne();
-    
+
+    const {
+      company_name, tagline, about, history, vision, mission, established_year,
+      email, phone, address, city, province, postal_code, country, logo_url,
+      favicon_url, facebook_url, twitter_url, instagram_url, linkedin_url,
+      youtube_url, meta_title, meta_description, meta_keywords
+    } = req.body;
+
+    const dataToUpdate = {
+      company_name, tagline, about, history, vision, mission, established_year,
+      email, phone, address, city, province, postal_code, country, logo_url,
+      favicon_url, facebook_url, twitter_url, instagram_url, linkedin_url,
+      youtube_url, meta_title, meta_description, meta_keywords
+    };
+
     if (!company) {
-      company = await CompanyInfo.create(req.body);
+      company = await CompanyInfo.create(dataToUpdate);
     } else {
-      await company.update(req.body);
+      await company.update(dataToUpdate);
     }
 
     res.json({
@@ -59,7 +73,7 @@ export const uploadLogo = async (req, res) => {
 
     const logoUrl = `/uploads/logos/${req.file.filename}`;
     let company = await CompanyInfo.findOne();
-    
+
     if (!company) {
       company = await CompanyInfo.create({ logo_url: logoUrl });
     } else {

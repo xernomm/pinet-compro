@@ -5,7 +5,7 @@ export const getAllNews = async (req, res) => {
   try {
     const { is_published, is_featured, category, search, page = 1, limit = 10 } = req.query;
     const where = {};
-    
+
     if (is_published !== undefined) where.is_published = is_published === 'true';
     if (is_featured !== undefined) where.is_featured = is_featured === 'true';
     if (category) where.category = category;
@@ -100,7 +100,17 @@ export const getNewsBySlug = async (req, res) => {
 
 export const createNews = async (req, res) => {
   try {
-    const news = await News.create(req.body);
+    const {
+      title, slug, category, excerpt, content, featured_image, gallery,
+      author, published_date, is_featured, is_published, meta_title,
+      meta_description, tags
+    } = req.body;
+
+    const news = await News.create({
+      title, slug, category, excerpt, content, featured_image, gallery,
+      author, published_date, is_featured, is_published, meta_title,
+      meta_description, tags
+    });
 
     res.status(201).json({
       success: true,
@@ -127,7 +137,17 @@ export const updateNews = async (req, res) => {
       });
     }
 
-    await news.update(req.body);
+    const {
+      title, slug, category, excerpt, content, featured_image, gallery,
+      author, published_date, is_featured, is_published, meta_title,
+      meta_description, tags
+    } = req.body;
+
+    await news.update({
+      title, slug, category, excerpt, content, featured_image, gallery,
+      author, published_date, is_featured, is_published, meta_title,
+      meta_description, tags
+    });
 
     res.json({
       success: true,

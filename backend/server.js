@@ -28,9 +28,20 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+// CORS configuration - allow frontend to access backend resources
+const corsOptions = {
+  origin: ['http://localhost:3000', 'http://localhost:3001'], // React dev server ports
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Security middleware
-app.use(helmet());
-app.use(cors());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow cross-origin resource loading
+}));
+app.use(cors(corsOptions));
 app.use(compression());
 
 // Body parser
@@ -56,8 +67,8 @@ app.use('/api/contacts', contactRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ 
-    success: true, 
+  res.json({
+    success: true,
     message: 'Server is running',
     timestamp: new Date().toISOString()
   });
@@ -87,7 +98,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await testConnection();
-    
+
     app.listen(PORT, () => {
       console.log(`✓ Server is running on port ${PORT}`);
       console.log(`✓ Environment: ${process.env.NODE_ENV}`);

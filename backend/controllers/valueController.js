@@ -5,7 +5,7 @@ export const getAllValues = async (req, res) => {
   try {
     const { is_active } = req.query;
     const where = {};
-    
+
     if (is_active !== undefined) where.is_active = is_active === 'true';
 
     const values = await Value.findAll({
@@ -53,7 +53,11 @@ export const getValueById = async (req, res) => {
 
 export const createValue = async (req, res) => {
   try {
-    const value = await Value.create(req.body);
+    const { title, description, icon, image_url, order_number, is_active } = req.body;
+
+    const value = await Value.create({
+      title, description, icon, image_url, order_number, is_active
+    });
 
     res.status(201).json({
       success: true,
@@ -80,7 +84,11 @@ export const updateValue = async (req, res) => {
       });
     }
 
-    await value.update(req.body);
+    const { title, description, icon, image_url, order_number, is_active } = req.body;
+
+    await value.update({
+      title, description, icon, image_url, order_number, is_active
+    });
 
     res.json({
       success: true,

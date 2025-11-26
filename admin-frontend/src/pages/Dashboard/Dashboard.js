@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { heroAPI, productAPI, newsAPI, contactAPI } from '../../api/apiService';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -17,14 +18,28 @@ const Dashboard = () => {
   }, []);
 
   const fetchStats = async () => {
-    // TODO: Implement API calls to get counts
-    // For now, using dummy data
-    setStats({
-      heroes: 5,
-      products: 12,
-      news: 8,
-      contacts: 15,
-    });
+    try {
+      const [heroesRes, productsRes, newsRes, contactsRes] = await Promise.all([
+        heroAPI.getAll(),
+        productAPI.getAll(),
+        newsAPI.getAll(),
+        contactAPI.getAll()
+      ]);
+
+      const getCount = (res) => {
+        const data = res.data.data || res.data;
+        return Array.isArray(data) ? data.length : 0;
+      };
+
+      setStats({
+        heroes: getCount(heroesRes),
+        products: getCount(productsRes),
+        news: getCount(newsRes),
+        contacts: getCount(contactsRes),
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    }
   };
 
   const statCards = [
@@ -43,8 +58,8 @@ const Dashboard = () => {
 
       <div className="stats-grid">
         {statCards.map((stat, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="stat-card"
             style={{ borderLeftColor: stat.color }}
           >

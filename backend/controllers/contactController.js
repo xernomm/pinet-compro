@@ -5,7 +5,7 @@ export const getAllContacts = async (req, res) => {
   try {
     const { status, category, page = 1, limit = 20 } = req.query;
     const where = {};
-    
+
     if (status) where.status = status;
     if (category) where.category = category;
 
@@ -64,8 +64,10 @@ export const getContactById = async (req, res) => {
 
 export const createContact = async (req, res) => {
   try {
+    const { name, email, phone, company, subject, message, category } = req.body;
+
     const contactData = {
-      ...req.body,
+      name, email, phone, company, subject, message, category,
       ip_address: req.ip,
       user_agent: req.get('user-agent')
     };
