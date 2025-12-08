@@ -30,6 +30,10 @@ const ProductList = () => {
         meta_title: '',
         meta_description: '',
     });
+    const [image, setImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
+    const [galleryFiles, setGalleryFiles] = useState([]);
+    const [previewGallery, setPreviewGallery] = useState([]);
 
     useEffect(() => {
         fetchProducts();
@@ -55,6 +59,23 @@ const ProductList = () => {
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            setPreviewImage(URL.createObjectURL(file));
+        }
+    };
+
+    const handleGalleryChange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            setGalleryFiles(files);
+            const previews = files.map(file => URL.createObjectURL(file));
+            setPreviewGallery(previews);
+        }
+    };
+
     const openCreateModal = () => {
         setCurrentProduct(null);
         setFormData({
@@ -78,6 +99,10 @@ const ProductList = () => {
             meta_title: '',
             meta_description: '',
         });
+        setImage(null);
+        setPreviewImage(null);
+        setGalleryFiles([]);
+        setPreviewGallery([]);
         setIsModalOpen(true);
     };
 
@@ -104,26 +129,58 @@ const ProductList = () => {
             meta_title: product.meta_title || '',
             meta_description: product.meta_description || '',
         });
+        setImage(null);
+        if (product.image_url) {
+            setPreviewImage(getImageUrl(product.image_url));
+        } else {
+            setPreviewImage(null);
+        }
+        setGalleryFiles([]);
+        setPreviewGallery([]); // Can't easily preview existing gallery from URLs in file input, so just show nothing or custom preview
         setIsModalOpen(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const submitData = {
-                ...formData,
-                features: formData.features ? formData.features.split('\n').filter(f => f.trim()) : [],
-                benefits: formData.benefits ? formData.benefits.split('\n').filter(b => b.trim()) : [],
-                gallery: formData.gallery ? formData.gallery.split('\n').filter(g => g.trim()) : [],
-            };
+            const submitData = new FormData();
 
-            // Try to parse specifications as JSON if it looks like JSON
-            if (formData.specifications) {
-                try {
-                    submitData.specifications = JSON.parse(formData.specifications);
-                } catch {
-                    submitData.specifications = formData.specifications;
+            // Reconstruct data first? No, append directly.
+            Object.keys(formData).forEach(key => {
+                if (key === 'features' || key === 'benefits' || key === 'gallery') {
+                    // Skip direct append for arrays handled specially below, 
+                    // EXCEPT for basic fields. 
+                    // Original logic: split by newline.
+                } else if (key !== 'specifications') {
+                    submitData.append(key, formData[key]);
                 }
+            });
+
+            // Handle features/benefits (logic from original)
+            if (formData.features) {
+                const features = formData.features.split('\n').filter(f => f.trim());
+                features.forEach(f => submitData.append('features', f)); // or features[]
+            }
+            if (formData.benefits) {
+                const benefits = formData.benefits.split('\n').filter(b => b.trim());
+                benefits.forEach(b => submitData.append('benefits', b));
+            }
+
+            // Handle specifications
+            if (formData.specifications) {
+                // If it's valid JSON string, passing it as string is usually fine if backend parses it?
+                // Or parsed object? FormData values are strings/blobs.
+                submitData.append('specifications', formData.specifications);
+            }
+
+            // Handle Images
+            if (image) {
+                submitData.append('image', image);
+            }
+            if (galleryFiles.length > 0) {
+                galleryFiles.forEach(file => {
+                    submitData.append('gallery', file);
+                });
             }
 
             if (currentProduct) {
@@ -322,25 +379,43 @@ const ProductList = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label>Image URL</label>
-                        <input
-                            type="text"
-                            name="image_url"
-                            value={formData.image_url}
-                            onChange={handleInputChange}
-                            className="form-control"
-                        />
+                        <label>Image</label>
+                        <div className="flex items-center gap-4">
+                            {previewImage && (
+                                <img
+                                    src={previewImage}
+                                    alt="Preview"
+                                    style={{ height: '80px', width: '80px', objectFit: 'contain', border: '1px solid #ddd', borderRadius: '4px' }}
+                                />
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="form-control"
+                                style={{ width: 'auto' }}
+                            />
+                        </div>
                     </div>
                     <div className="form-group">
-                        <label>Gallery URLs (one per line)</label>
-                        <textarea
-                            name="gallery"
-                            value={formData.gallery}
-                            onChange={handleInputChange}
-                            rows="2"
-                            className="form-control"
-                            placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                        ></textarea>
+                        <label>Gallery Images</label>
+                        <div className="flex flex-col gap-2">
+                            {previewGallery.length > 0 && (
+                                <div className="flex gap-2 flex-wrap">
+                                    {previewGallery.map((url, index) => (
+                                        <img key={index} src={url} alt={`Gallery ${index}`} style={{ height: '60px', width: '60px', objectFit: 'cover', borderRadius: '4px' }} />
+                                    ))}
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleGalleryChange}
+                                className="form-control"
+                            />
+                            <small className="text-muted">Select multiple files to upload to gallery</small>
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Brochure URL</label>

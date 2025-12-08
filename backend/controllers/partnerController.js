@@ -86,15 +86,12 @@ export const getPartnerBySlug = async (req, res) => {
 
 export const createPartner = async (req, res) => {
   try {
-    const {
-      name, slug, description, logo_url, website_url, partnership_type,
-      partnership_since, order_number, is_active
-    } = req.body;
+    const data = { ...req.body };
+    if (req.file) {
+      data.logo_url = `/uploads/logos/${req.file.filename}`;
+    }
 
-    const partner = await Partner.create({
-      name, slug, description, logo_url, website_url, partnership_type,
-      partnership_since, order_number, is_active
-    });
+    const partner = await Partner.create(data);
 
     res.status(201).json({
       success: true,
@@ -121,15 +118,12 @@ export const updatePartner = async (req, res) => {
       });
     }
 
-    const {
-      name, slug, description, logo_url, website_url, partnership_type,
-      partnership_since, order_number, is_active
-    } = req.body;
+    const data = { ...req.body };
+    if (req.file) {
+      data.logo_url = `/uploads/logos/${req.file.filename}`;
+    }
 
-    await partner.update({
-      name, slug, description, logo_url, website_url, partnership_type,
-      partnership_since, order_number, is_active
-    });
+    await partner.update(data);
 
     res.json({
       success: true,

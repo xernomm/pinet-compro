@@ -124,19 +124,18 @@ export const getUpcomingEvents = async (req, res) => {
 
 export const createEvent = async (req, res) => {
   try {
-    const {
-      title, slug, description, event_type, start_date, end_date, start_time, end_time,
-      location, venue, address, is_online, meeting_link, featured_image, gallery,
-      organizer, contact_person, contact_email, contact_phone, registration_url,
-      max_participants, is_featured, is_published, status
-    } = req.body;
+    const data = { ...req.body };
 
-    const event = await Event.create({
-      title, slug, description, event_type, start_date, end_date, start_time, end_time,
-      location, venue, address, is_online, meeting_link, featured_image, gallery,
-      organizer, contact_person, contact_email, contact_phone, registration_url,
-      max_participants, is_featured, is_published, status
-    });
+    if (req.file) {
+      data.featured_image = `/uploads/images/${req.file.filename}`;
+    }
+
+    // Ensure gallery is array if present (multer might convert single item to string)
+    if (data.gallery && typeof data.gallery === 'string') {
+      data.gallery = [data.gallery];
+    }
+
+    const event = await Event.create(data);
 
     res.status(201).json({
       success: true,
@@ -163,19 +162,17 @@ export const updateEvent = async (req, res) => {
       });
     }
 
-    const {
-      title, slug, description, event_type, start_date, end_date, start_time, end_time,
-      location, venue, address, is_online, meeting_link, featured_image, gallery,
-      organizer, contact_person, contact_email, contact_phone, registration_url,
-      max_participants, is_featured, is_published, status
-    } = req.body;
+    const data = { ...req.body };
 
-    await event.update({
-      title, slug, description, event_type, start_date, end_date, start_time, end_time,
-      location, venue, address, is_online, meeting_link, featured_image, gallery,
-      organizer, contact_person, contact_email, contact_phone, registration_url,
-      max_participants, is_featured, is_published, status
-    });
+    if (req.file) {
+      data.featured_image = `/uploads/images/${req.file.filename}`;
+    }
+
+    if (data.gallery && typeof data.gallery === 'string') {
+      data.gallery = [data.gallery];
+    }
+
+    await event.update(data);
 
     res.json({
       success: true,

@@ -100,17 +100,18 @@ export const getNewsBySlug = async (req, res) => {
 
 export const createNews = async (req, res) => {
   try {
-    const {
-      title, slug, category, excerpt, content, featured_image, gallery,
-      author, published_date, is_featured, is_published, meta_title,
-      meta_description, tags
-    } = req.body;
+    const data = { ...req.body };
 
-    const news = await News.create({
-      title, slug, category, excerpt, content, featured_image, gallery,
-      author, published_date, is_featured, is_published, meta_title,
-      meta_description, tags
-    });
+    if (req.files) {
+      if (req.files.featured_image) {
+        data.featured_image = `/uploads/images/${req.files.featured_image[0].filename}`;
+      }
+      if (req.files.gallery) {
+        data.gallery = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
+      }
+    }
+
+    const news = await News.create(data);
 
     res.status(201).json({
       success: true,
@@ -137,17 +138,21 @@ export const updateNews = async (req, res) => {
       });
     }
 
-    const {
-      title, slug, category, excerpt, content, featured_image, gallery,
-      author, published_date, is_featured, is_published, meta_title,
-      meta_description, tags
-    } = req.body;
+    const data = { ...req.body };
 
-    await news.update({
-      title, slug, category, excerpt, content, featured_image, gallery,
-      author, published_date, is_featured, is_published, meta_title,
-      meta_description, tags
-    });
+    if (req.files) {
+      if (req.files.featured_image) {
+        data.featured_image = `/uploads/images/${req.files.featured_image[0].filename}`;
+      }
+      if (req.files.gallery) {
+        const newGallery = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
+        // Append new images to existing gallery
+        const existingGallery = news.gallery || [];
+        data.gallery = [...existingGallery, ...newGallery];
+      }
+    }
+
+    await news.update(data);
 
     res.json({
       success: true,

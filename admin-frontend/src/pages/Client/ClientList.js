@@ -23,8 +23,11 @@ const ClientList = () => {
         collaboration_since: '',
         order_number: 0,
         is_featured: false,
+        is_featured: false,
         is_active: true,
     });
+    const [logo, setLogo] = useState(null);
+    const [previewLogo, setPreviewLogo] = useState(null);
 
     useEffect(() => {
         fetchClients();
@@ -50,8 +53,15 @@ const ClientList = () => {
         }));
     };
 
+    const handleLogoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setLogo(file);
+            setPreviewLogo(URL.createObjectURL(file));
+        }
+    };
+
     const openCreateModal = () => {
-        setCurrentClient(null);
         setFormData({
             name: '',
             slug: '',
@@ -68,6 +78,8 @@ const ClientList = () => {
             is_featured: false,
             is_active: true,
         });
+        setLogo(null);
+        setPreviewLogo(null);
         setIsModalOpen(true);
     };
 
@@ -89,17 +101,31 @@ const ClientList = () => {
             is_featured: client.is_featured ?? false,
             is_active: client.is_active ?? true,
         });
+        setLogo(null);
+        if (client.logo_url) {
+            setPreviewLogo(getImageUrl(client.logo_url));
+        } else {
+            setPreviewLogo(null);
+        }
         setIsModalOpen(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const submitData = new FormData();
+            Object.keys(formData).forEach(key => {
+                submitData.append(key, formData[key]);
+            });
+            if (logo) {
+                submitData.append('logo', logo);
+            }
+
             if (currentClient) {
-                await clientAPI.update(currentClient.id, formData);
+                await clientAPI.update(currentClient.id, submitData);
                 toast.success('Client updated successfully');
             } else {
-                await clientAPI.create(formData);
+                await clientAPI.create(submitData);
                 toast.success('Client created successfully');
             }
             setIsModalOpen(false);
@@ -230,14 +256,23 @@ const ClientList = () => {
                         ></textarea>
                     </div>
                     <div className="form-group">
-                        <label>Logo URL</label>
-                        <input
-                            type="text"
-                            name="logo_url"
-                            value={formData.logo_url}
-                            onChange={handleInputChange}
-                            className="form-control"
-                        />
+                        <label>Logo</label>
+                        <div className="flex items-center gap-4">
+                            {previewLogo && (
+                                <img
+                                    src={previewLogo}
+                                    alt="Logo Preview"
+                                    style={{ height: '80px', width: '80px', objectFit: 'contain', border: '1px solid #ddd', borderRadius: '4px' }}
+                                />
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleLogoChange}
+                                className="form-control"
+                                style={{ width: 'auto' }}
+                            />
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Website URL</label>
@@ -352,6 +387,8 @@ const ClientList = () => {
             </Modal>
         </div>
     );
+
+
 };
 
 export default ClientList;

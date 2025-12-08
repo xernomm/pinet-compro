@@ -55,15 +55,13 @@ export const getHeroById = async (req, res) => {
 
 export const createHero = async (req, res) => {
   try {
-    const {
-      title, subtitle, description, image_url, button_text, button_link,
-      order_number, is_active
-    } = req.body;
+    const data = { ...req.body };
 
-    const hero = await Hero.create({
-      title, subtitle, description, image_url, button_text, button_link,
-      order_number, is_active
-    });
+    if (req.file) {
+      data.image_url = `/uploads/images/${req.file.filename}`;
+    }
+
+    const hero = await Hero.create(data);
 
     res.status(201).json({
       success: true,
@@ -90,15 +88,13 @@ export const updateHero = async (req, res) => {
       });
     }
 
-    const {
-      title, subtitle, description, image_url, button_text, button_link,
-      order_number, is_active
-    } = req.body;
+    const data = { ...req.body };
 
-    await hero.update({
-      title, subtitle, description, image_url, button_text, button_link,
-      order_number, is_active
-    });
+    if (req.file) {
+      data.image_url = `/uploads/images/${req.file.filename}`;
+    }
+
+    await hero.update(data);
 
     res.json({
       success: true,

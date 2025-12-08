@@ -87,17 +87,12 @@ export const getClientBySlug = async (req, res) => {
 
 export const createClient = async (req, res) => {
   try {
-    const {
-      name, slug, description, logo_url, website_url, industry,
-      project_description, testimonial, testimonial_author, testimonial_position,
-      collaboration_since, order_number, is_featured, is_active
-    } = req.body;
+    const data = { ...req.body };
+    if (req.file) {
+      data.logo_url = `/uploads/logos/${req.file.filename}`;
+    }
 
-    const client = await Client.create({
-      name, slug, description, logo_url, website_url, industry,
-      project_description, testimonial, testimonial_author, testimonial_position,
-      collaboration_since, order_number, is_featured, is_active
-    });
+    const client = await Client.create(data);
 
     res.status(201).json({
       success: true,
@@ -124,17 +119,12 @@ export const updateClient = async (req, res) => {
       });
     }
 
-    const {
-      name, slug, description, logo_url, website_url, industry,
-      project_description, testimonial, testimonial_author, testimonial_position,
-      collaboration_since, order_number, is_featured, is_active
-    } = req.body;
+    const data = { ...req.body };
+    if (req.file) {
+      data.logo_url = `/uploads/logos/${req.file.filename}`;
+    }
 
-    await client.update({
-      name, slug, description, logo_url, website_url, industry,
-      project_description, testimonial, testimonial_author, testimonial_position,
-      collaboration_since, order_number, is_featured, is_active
-    });
+    await client.update(data);
 
     res.json({
       success: true,

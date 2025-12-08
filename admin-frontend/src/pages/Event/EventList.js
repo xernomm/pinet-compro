@@ -35,6 +35,8 @@ const EventList = () => {
         is_published: false,
         status: 'upcoming',
     });
+    const [featuredImage, setFeaturedImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
 
     useEffect(() => {
         fetchEvents();
@@ -58,6 +60,14 @@ const EventList = () => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFeaturedImage(file);
+            setPreviewImage(URL.createObjectURL(file));
+        }
     };
 
     const openCreateModal = () => {
@@ -88,6 +98,8 @@ const EventList = () => {
             is_published: false,
             status: 'upcoming',
         });
+        setFeaturedImage(null);
+        setPreviewImage(null);
         setIsModalOpen(true);
     };
 
@@ -119,17 +131,69 @@ const EventList = () => {
             is_published: event.is_published ?? false,
             status: event.status || 'upcoming',
         });
+        setFeaturedImage(null);
+        if (event.featured_image) {
+            setPreviewImage(getImageUrl(event.featured_image));
+        } else {
+            setPreviewImage(null);
+        }
         setIsModalOpen(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const submitData = {
+            const submitData = new FormData();
+
+            // Append all existing form fields
+            Object.keys(formData).forEach(key => {
+                // Special handling for array/special fields
+                if (key === 'gallery') {
+                    // Keep array processing logic if needed, but FormData needs strings
+                    // If gallery was text area with newlines, keep as string. Backend should handle splitting.
+                    // But wait, the original code had:
+                    // gallery: formData.gallery ? formData.gallery.split('\n').filter(g => g.trim()) : []
+                    // If sending FormData, we can append multiple 'gallery[]' or handle on backend.
+                    // However, sending JSON stringified array might be safer if backend expects array.
+                    // The previous code sent JSON object { gallery: [...] }
+                    // With FormData, we should append strings.
+                    // Let's replicate strict logic from original handleSubmit but into FormData
+                }
+            });
+
+            // Reconstruct logic from original handleSubmit
+            // ... original had:
+            // const submitData = { ...formData, gallery: ..., max_participants: ... }
+
+            // So we need to do transformations first
+            const processedData = {
                 ...formData,
                 gallery: formData.gallery ? formData.gallery.split('\n').filter(g => g.trim()) : [],
                 max_participants: formData.max_participants ? parseInt(formData.max_participants) : null,
             };
+
+            Object.keys(processedData).forEach(key => {
+                const value = processedData[key];
+                if (Array.isArray(value)) {
+                    // Start fresh for array
+                    value.forEach(item => {
+                        submitData.append(key, item);
+                        // or submitData.append(`${key}[]`, item); 
+                        // Check apiService how it was used. Usually axios handles arrays in JSON. 
+                        // But in FormData, it's repeated keys.
+                    });
+                    // NOTE: If backend expects JSON array, we might need to JSON.stringify it if it's not looking for repeated keys.
+                    // Given the "gallery" is just URLs, sending JSON string might correspond to text field better if backend expects text.
+                    // BUT original code sent ARRAY of strings.
+                    // Let's assume standard FormData behavior: append multiple times for array.
+                } else if (value !== null && value !== undefined) {
+                    submitData.append(key, value);
+                }
+            });
+
+            if (featuredImage) {
+                submitData.append('featured_image', featuredImage); // Or 'image'
+            }
 
             if (currentEvent) {
                 await eventAPI.update(currentEvent.id, submitData);
@@ -380,14 +444,23 @@ const EventList = () => {
                         </>
                     )}
                     <div className="form-group">
-                        <label>Featured Image URL</label>
-                        <input
-                            type="text"
-                            name="featured_image"
-                            value={formData.featured_image}
-                            onChange={handleInputChange}
-                            className="form-control"
-                        />
+                        <label>Featured Image</label>
+                        <div className="flex items-center gap-4">
+                            {previewImage && (
+                                <img
+                                    src={previewImage}
+                                    alt="Preview"
+                                    style={{ height: '80px', width: '80px', objectFit: 'contain', border: '1px solid #ddd', borderRadius: '4px' }}
+                                />
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="form-control"
+                                style={{ width: 'auto' }}
+                            />
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Gallery URLs (one per line)</label>

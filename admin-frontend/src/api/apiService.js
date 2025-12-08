@@ -37,6 +37,9 @@ api.interceptors.response.use(
   }
 );
 
+// Helper to handle FormData headers
+const createConfig = (data) => (data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {});
+
 // Auth Services
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
@@ -59,8 +62,8 @@ export const companyAPI = {
 export const heroAPI = {
   getAll: (params) => api.get('/heroes', { params }),
   getById: (id) => api.get(`/heroes/${id}`),
-  create: (data) => api.post('/heroes', data),
-  update: (id, data) => api.put(`/heroes/${id}`, data),
+  create: (data) => api.post('/heroes', data, createConfig(data)),
+  update: (id, data) => api.put(`/heroes/${id}`, data, createConfig(data)),
   delete: (id) => api.delete(`/heroes/${id}`),
 };
 
@@ -69,8 +72,8 @@ export const serviceAPI = {
   getAll: (params) => api.get('/services', { params }),
   getById: (id) => api.get(`/services/${id}`),
   getBySlug: (slug) => api.get(`/services/slug/${slug}`),
-  create: (data) => api.post('/services', data),
-  update: (id, data) => api.put(`/services/${id}`, data),
+  create: (data) => api.post('/services', data, createConfig(data)),
+  update: (id, data) => api.put(`/services/${id}`, data, createConfig(data)),
   delete: (id) => api.delete(`/services/${id}`),
 };
 
@@ -78,8 +81,8 @@ export const serviceAPI = {
 export const valueAPI = {
   getAll: (params) => api.get('/values', { params }),
   getById: (id) => api.get(`/values/${id}`),
-  create: (data) => api.post('/values', data),
-  update: (id, data) => api.put(`/values/${id}`, data),
+  create: (data) => api.post('/values', data, createConfig(data)),
+  update: (id, data) => api.put(`/values/${id}`, data, createConfig(data)),
   delete: (id) => api.delete(`/values/${id}`),
 };
 
@@ -88,8 +91,8 @@ export const productAPI = {
   getAll: (params) => api.get('/products', { params }),
   getById: (id) => api.get(`/products/${id}`),
   getBySlug: (slug) => api.get(`/products/slug/${slug}`),
-  create: (data) => api.post('/products', data),
-  update: (id, data) => api.put(`/products/${id}`, data),
+  create: (data) => api.post('/products', data, createConfig(data)),
+  update: (id, data) => api.put(`/products/${id}`, data, createConfig(data)),
   delete: (id) => api.delete(`/products/${id}`),
 };
 
@@ -98,8 +101,8 @@ export const partnerAPI = {
   getAll: (params) => api.get('/partners', { params }),
   getById: (id) => api.get(`/partners/${id}`),
   getBySlug: (slug) => api.get(`/partners/slug/${slug}`),
-  create: (data) => api.post('/partners', data),
-  update: (id, data) => api.put(`/partners/${id}`, data),
+  create: (data) => api.post('/partners', data, createConfig(data)),
+  update: (id, data) => api.put(`/partners/${id}`, data, createConfig(data)),
   delete: (id) => api.delete(`/partners/${id}`),
 };
 
@@ -108,8 +111,8 @@ export const clientAPI = {
   getAll: (params) => api.get('/clients', { params }),
   getById: (id) => api.get(`/clients/${id}`),
   getBySlug: (slug) => api.get(`/clients/slug/${slug}`),
-  create: (data) => api.post('/clients', data),
-  update: (id, data) => api.put(`/clients/${id}`, data),
+  create: (data) => api.post('/clients', data, createConfig(data)),
+  update: (id, data) => api.put(`/clients/${id}`, data, createConfig(data)),
   delete: (id) => api.delete(`/clients/${id}`),
 };
 
@@ -118,8 +121,8 @@ export const newsAPI = {
   getAll: (params) => api.get('/news', { params }),
   getById: (id) => api.get(`/news/${id}`),
   getBySlug: (slug) => api.get(`/news/slug/${slug}`),
-  create: (data) => api.post('/news', data),
-  update: (id, data) => api.put(`/news/${id}`, data),
+  create: (data) => api.post('/news', data, createConfig(data)),
+  update: (id, data) => api.put(`/news/${id}`, data, createConfig(data)),
   publish: (id) => api.put(`/news/${id}/publish`),
   delete: (id) => api.delete(`/news/${id}`),
 };
@@ -130,8 +133,8 @@ export const eventAPI = {
   getUpcoming: () => api.get('/events/upcoming'),
   getById: (id) => api.get(`/events/${id}`),
   getBySlug: (slug) => api.get(`/events/slug/${slug}`),
-  create: (data) => api.post('/events', data),
-  update: (id, data) => api.put(`/events/${id}`, data),
+  create: (data) => api.post('/events', data, createConfig(data)),
+  update: (id, data) => api.put(`/events/${id}`, data, createConfig(data)),
   updateStatus: (id, status) => api.put(`/events/${id}/status`, { status }),
   delete: (id) => api.delete(`/events/${id}`),
 };

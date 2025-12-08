@@ -53,11 +53,12 @@ export const getValueById = async (req, res) => {
 
 export const createValue = async (req, res) => {
   try {
-    const { title, description, icon, image_url, order_number, is_active } = req.body;
+    const data = { ...req.body };
+    if (req.file) {
+      data.image_url = `/uploads/images/${req.file.filename}`;
+    }
 
-    const value = await Value.create({
-      title, description, icon, image_url, order_number, is_active
-    });
+    const value = await Value.create(data);
 
     res.status(201).json({
       success: true,
@@ -84,11 +85,12 @@ export const updateValue = async (req, res) => {
       });
     }
 
-    const { title, description, icon, image_url, order_number, is_active } = req.body;
+    const data = { ...req.body };
+    if (req.file) {
+      data.image_url = `/uploads/images/${req.file.filename}`;
+    }
 
-    await value.update({
-      title, description, icon, image_url, order_number, is_active
-    });
+    await value.update(data);
 
     res.json({
       success: true,

@@ -11,6 +11,7 @@ import {
   updateEventStatus
 } from '../controllers/eventController.js';
 import { protect, authorize } from '../middleware/auth.js';
+import upload from '../middleware/upload.js';
 
 // Public routes
 router.get('/', getAllEvents);
@@ -19,8 +20,8 @@ router.get('/slug/:slug', getEventBySlug);
 router.get('/:id', getEventById);
 
 // Protected routes
-router.post('/', protect, authorize('super_admin', 'admin', 'editor'), createEvent);
-router.put('/:id', protect, authorize('super_admin', 'admin', 'editor'), updateEvent);
+router.post('/', protect, authorize('super_admin', 'admin', 'editor'), upload.single('featured_image'), createEvent);
+router.put('/:id', protect, authorize('super_admin', 'admin', 'editor'), upload.single('featured_image'), updateEvent);
 router.put('/:id/status', protect, authorize('super_admin', 'admin'), updateEventStatus);
 router.delete('/:id', protect, authorize('super_admin', 'admin'), deleteEvent);
 

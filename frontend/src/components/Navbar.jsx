@@ -87,7 +87,11 @@ const Navbar = ({ companyInfo }) => {
                                 <img
                                     src={getImageUrl(companyInfo.logo_url)}
                                     alt={companyInfo.company_name}
-                                    className="h-12 w-auto"
+                                    className="h-12"
+                                    style={{
+                                        width: "65%",
+                                        height: "65%"
+                                    }}
                                 />
                             ) : (
                                 <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-400 dark:to-primary-600 bg-clip-text text-transparent">

@@ -93,17 +93,28 @@ export const getProductBySlug = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const {
-      name, slug, category, short_description, description, features, benefits,
-      specifications, target_segment, image_url, gallery, brochure_url, video_url,
-      price_range, order_number, is_featured, is_active, meta_title, meta_description
-    } = req.body;
+    const data = { ...req.body };
 
-    const product = await Product.create({
-      name, slug, category, short_description, description, features, benefits,
-      specifications, target_segment, image_url, gallery, brochure_url, video_url,
-      price_range, order_number, is_featured, is_active, meta_title, meta_description
-    });
+    // Handle file uploads
+    if (req.files) {
+      if (req.files.image) {
+        data.image_url = `/uploads/images/${req.files.image[0].filename}`;
+      }
+      if (req.files.gallery) {
+        data.gallery = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
+      }
+    }
+
+    // Parse specifications if string (from FormData)
+    if (typeof data.specifications === 'string') {
+      try {
+        data.specifications = JSON.parse(data.specifications);
+      } catch (e) {
+        // keep as string or handle error
+      }
+    }
+
+    const product = await Product.create(data);
 
     res.status(201).json({
       success: true,
@@ -130,17 +141,28 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    const {
-      name, slug, category, short_description, description, features, benefits,
-      specifications, target_segment, image_url, gallery, brochure_url, video_url,
-      price_range, order_number, is_featured, is_active, meta_title, meta_description
-    } = req.body;
+    const data = { ...req.body };
 
-    await product.update({
-      name, slug, category, short_description, description, features, benefits,
-      specifications, target_segment, image_url, gallery, brochure_url, video_url,
-      price_range, order_number, is_featured, is_active, meta_title, meta_description
-    });
+    // Handle file uploads
+    if (req.files) {
+      if (req.files.image) {
+        data.image_url = `/uploads/images/${req.files.image[0].filename}`;
+      }
+      if (req.files.gallery) {
+        const newGallery = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
+        const existingGallery = product.gallery || [];
+        data.gallery = [...existingGallery, ...newGallery];
+      }
+    }
+
+    // Parse specifications if string
+    if (typeof data.specifications === 'string') {
+      try {
+        data.specifications = JSON.parse(data.specifications);
+      } catch (e) { }
+    }
+
+    await product.update(data);
 
     res.json({
       success: true,

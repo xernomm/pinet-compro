@@ -16,9 +16,12 @@ const ServiceList = () => {
         description: '',
         icon: '',
         image_url: '',
+        icon_class: '',
         order_number: 0,
         is_active: true,
     });
+    const [image, setImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
 
     useEffect(() => {
         fetchServices();
@@ -42,6 +45,14 @@ const ServiceList = () => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            setPreviewImage(URL.createObjectURL(file));
+        }
     };
 
     const openCreateModal = () => {
@@ -77,11 +88,19 @@ const ServiceList = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const submitData = new FormData();
+            Object.keys(formData).forEach(key => {
+                submitData.append(key, formData[key]);
+            });
+            if (image) {
+                submitData.append('image', image);
+            }
+
             if (currentService) {
-                await serviceAPI.update(currentService.id, formData);
+                await serviceAPI.update(currentService.id, submitData);
                 toast.success('Service updated successfully');
             } else {
-                await serviceAPI.create(formData);
+                await serviceAPI.create(submitData);
                 toast.success('Service created successfully');
             }
             setIsModalOpen(false);
@@ -229,14 +248,23 @@ const ServiceList = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label>Image URL</label>
-                        <input
-                            type="text"
-                            name="image_url"
-                            value={formData.image_url}
-                            onChange={handleInputChange}
-                            className="form-control"
-                        />
+                        <label>Image</label>
+                        <div className="flex items-center gap-4">
+                            {previewImage && (
+                                <img
+                                    src={previewImage}
+                                    alt="Preview"
+                                    style={{ height: '80px', width: '80px', objectFit: 'contain', border: '1px solid #ddd', borderRadius: '4px' }}
+                                />
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="form-control"
+                                style={{ width: 'auto' }}
+                            />
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Order Number</label>

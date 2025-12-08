@@ -25,6 +25,10 @@ const NewsList = () => {
         meta_description: '',
         tags: '',
     });
+    const [featuredImage, setFeaturedImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
+    const [galleryFiles, setGalleryFiles] = useState([]);
+    const [previewGallery, setPreviewGallery] = useState([]);
 
     useEffect(() => {
         fetchNews();
@@ -50,6 +54,23 @@ const NewsList = () => {
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFeaturedImage(file);
+            setPreviewImage(URL.createObjectURL(file));
+        }
+    };
+
+    const handleGalleryChange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            setGalleryFiles(files);
+            const previews = files.map(file => URL.createObjectURL(file));
+            setPreviewGallery(previews);
+        }
+    };
+
     const openCreateModal = () => {
         setCurrentNews(null);
         setFormData({
@@ -68,6 +89,10 @@ const NewsList = () => {
             meta_description: '',
             tags: '',
         });
+        setFeaturedImage(null);
+        setPreviewImage(null);
+        setGalleryFiles([]);
+        setPreviewGallery([]);
         setIsModalOpen(true);
     };
 
@@ -89,17 +114,45 @@ const NewsList = () => {
             meta_description: newsItem.meta_description || '',
             tags: Array.isArray(newsItem.tags) ? newsItem.tags.join(', ') : newsItem.tags || '',
         });
+        setFeaturedImage(null);
+        if (newsItem.featured_image) {
+            setPreviewImage(getImageUrl(newsItem.featured_image));
+        } else {
+            setPreviewImage(null);
+        }
+        setGalleryFiles([]);
+        setPreviewGallery([]);
         setIsModalOpen(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const submitData = {
-                ...formData,
-                gallery: formData.gallery ? formData.gallery.split('\n').filter(g => g.trim()) : [],
-                tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : [],
-            };
+            const submitData = new FormData();
+
+            Object.keys(formData).forEach(key => {
+                if (key === 'tags' || key === 'gallery') {
+                    // Skip special handling here
+                } else {
+                    submitData.append(key, formData[key]);
+                }
+            });
+
+            // Handle tags
+            if (formData.tags) {
+                const tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+                tags.forEach(t => submitData.append('tags', t));
+            }
+
+            // Handle Images
+            if (featuredImage) {
+                submitData.append('featured_image', featuredImage);
+            }
+            if (galleryFiles.length > 0) {
+                galleryFiles.forEach(file => {
+                    submitData.append('gallery', file);
+                });
+            }
 
             if (currentNews) {
                 await newsAPI.update(currentNews.id, submitData);
@@ -276,25 +329,43 @@ const NewsList = () => {
                         ></textarea>
                     </div>
                     <div className="form-group">
-                        <label>Featured Image URL</label>
-                        <input
-                            type="text"
-                            name="featured_image"
-                            value={formData.featured_image}
-                            onChange={handleInputChange}
-                            className="form-control"
-                        />
+                        <label>Featured Image</label>
+                        <div className="flex items-center gap-4">
+                            {previewImage && (
+                                <img
+                                    src={previewImage}
+                                    alt="Preview"
+                                    style={{ height: '80px', width: '80px', objectFit: 'contain', border: '1px solid #ddd', borderRadius: '4px' }}
+                                />
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="form-control"
+                                style={{ width: 'auto' }}
+                            />
+                        </div>
                     </div>
                     <div className="form-group">
-                        <label>Gallery URLs (one per line)</label>
-                        <textarea
-                            name="gallery"
-                            value={formData.gallery}
-                            onChange={handleInputChange}
-                            rows="2"
-                            className="form-control"
-                            placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                        ></textarea>
+                        <label>Gallery Images</label>
+                        <div className="flex flex-col gap-2">
+                            {previewGallery.length > 0 && (
+                                <div className="flex gap-2 flex-wrap">
+                                    {previewGallery.map((url, index) => (
+                                        <img key={index} src={url} alt={`Gallery ${index}`} style={{ height: '60px', width: '60px', objectFit: 'cover', borderRadius: '4px' }} />
+                                    ))}
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleGalleryChange}
+                                className="form-control"
+                            />
+                            <small className="text-muted">Select multiple files to upload to gallery</small>
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Author</label>

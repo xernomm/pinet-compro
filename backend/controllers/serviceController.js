@@ -85,15 +85,12 @@ export const getServiceBySlug = async (req, res) => {
 
 export const createService = async (req, res) => {
   try {
-    const {
-      name, slug, short_description, description, icon, image_url,
-      order_number, is_active
-    } = req.body;
+    const data = { ...req.body };
+    if (req.file) {
+      data.image_url = `/uploads/images/${req.file.filename}`;
+    }
 
-    const service = await Service.create({
-      name, slug, short_description, description, icon, image_url,
-      order_number, is_active
-    });
+    const service = await Service.create(data);
 
     res.status(201).json({
       success: true,
@@ -120,15 +117,12 @@ export const updateService = async (req, res) => {
       });
     }
 
-    const {
-      name, slug, short_description, description, icon, image_url,
-      order_number, is_active
-    } = req.body;
+    const data = { ...req.body };
+    if (req.file) {
+      data.image_url = `/uploads/images/${req.file.filename}`;
+    }
 
-    await service.update({
-      name, slug, short_description, description, icon, image_url,
-      order_number, is_active
-    });
+    await service.update(data);
 
     res.json({
       success: true,

@@ -66,7 +66,7 @@ const StatsSection = ({ companyInfo }) => {
             icon: '😊'
         },
         {
-            value: 1000,
+            value: 300,
             suffix: '+',
             label: 'Projects Completed',
             icon: '✅'

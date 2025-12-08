@@ -20,6 +20,8 @@ const PartnerList = () => {
         order_number: 0,
         is_active: true,
     });
+    const [logo, setLogo] = useState(null);
+    const [previewLogo, setPreviewLogo] = useState(null);
 
     useEffect(() => {
         fetchPartners();
@@ -45,6 +47,14 @@ const PartnerList = () => {
         }));
     };
 
+    const handleLogoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setLogo(file);
+            setPreviewLogo(URL.createObjectURL(file));
+        }
+    };
+
     const openCreateModal = () => {
         setCurrentPartner(null);
         setFormData({
@@ -58,6 +68,8 @@ const PartnerList = () => {
             order_number: 0,
             is_active: true,
         });
+        setLogo(null);
+        setPreviewLogo(null);
         setIsModalOpen(true);
     };
 
@@ -74,17 +86,31 @@ const PartnerList = () => {
             order_number: partner.order_number || 0,
             is_active: partner.is_active ?? true,
         });
+        setLogo(null);
+        if (partner.logo_url) {
+            setPreviewLogo(getImageUrl(partner.logo_url));
+        } else {
+            setPreviewLogo(null);
+        }
         setIsModalOpen(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const submitData = new FormData();
+            Object.keys(formData).forEach(key => {
+                submitData.append(key, formData[key]);
+            });
+            if (logo) {
+                submitData.append('logo', logo);
+            }
+
             if (currentPartner) {
-                await partnerAPI.update(currentPartner.id, formData);
+                await partnerAPI.update(currentPartner.id, submitData);
                 toast.success('Partner updated successfully');
             } else {
-                await partnerAPI.create(formData);
+                await partnerAPI.create(submitData);
                 toast.success('Partner created successfully');
             }
             setIsModalOpen(false);
@@ -211,14 +237,23 @@ const PartnerList = () => {
                         ></textarea>
                     </div>
                     <div className="form-group">
-                        <label>Logo URL</label>
-                        <input
-                            type="text"
-                            name="logo_url"
-                            value={formData.logo_url}
-                            onChange={handleInputChange}
-                            className="form-control"
-                        />
+                        <label>Logo</label>
+                        <div className="flex items-center gap-4">
+                            {previewLogo && (
+                                <img
+                                    src={previewLogo}
+                                    alt="Logo Preview"
+                                    style={{ height: '80px', width: '80px', objectFit: 'contain', border: '1px solid #ddd', borderRadius: '4px' }}
+                                />
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleLogoChange}
+                                className="form-control"
+                                style={{ width: 'auto' }}
+                            />
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Website URL</label>
