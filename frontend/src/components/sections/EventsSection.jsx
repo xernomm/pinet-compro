@@ -20,8 +20,8 @@ const EventsSection = ({ events }) => {
 
     if (publishedEvents.length === 0) {
         return (
-            <section id="events" className="section-container">
-                <h2 className="section-title">Upcoming Events</h2>
+            <section id="events" className="section-container ">
+                <h2 className="section-title p-4">Upcoming Events</h2>
                 <p className="section-subtitle">
                     Join us at our upcoming events and conferences
                 </p>
