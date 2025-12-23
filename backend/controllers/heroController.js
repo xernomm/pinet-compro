@@ -69,6 +69,7 @@ export const createHero = async (req, res) => {
       message: 'Hero created successfully'
     });
   } catch (error) {
+    console.error('Error creating hero:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating hero',
@@ -102,6 +103,7 @@ export const updateHero = async (req, res) => {
       message: 'Hero updated successfully'
     });
   } catch (error) {
+    console.error('Error updating hero:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating hero',

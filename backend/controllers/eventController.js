@@ -130,9 +130,19 @@ export const createEvent = async (req, res) => {
       data.featured_image = `/uploads/images/${req.file.filename}`;
     }
 
-    // Ensure gallery is array if present (multer might convert single item to string)
-    if (data.gallery && typeof data.gallery === 'string') {
-      data.gallery = [data.gallery];
+    // Ensure gallery is stringified JSON if present
+    if (data.gallery) {
+      if (typeof data.gallery === 'string') {
+        try {
+          // Validate it's valid JSON
+          JSON.parse(data.gallery);
+        } catch (e) {
+          // If not valid JSON, wrap in array
+          data.gallery = JSON.stringify([data.gallery]);
+        }
+      } else if (Array.isArray(data.gallery)) {
+        data.gallery = JSON.stringify(data.gallery);
+      }
     }
 
     const event = await Event.create(data);
@@ -143,6 +153,7 @@ export const createEvent = async (req, res) => {
       message: 'Event created successfully'
     });
   } catch (error) {
+    console.error('Error creating event:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating event',
@@ -168,8 +179,19 @@ export const updateEvent = async (req, res) => {
       data.featured_image = `/uploads/images/${req.file.filename}`;
     }
 
-    if (data.gallery && typeof data.gallery === 'string') {
-      data.gallery = [data.gallery];
+    // Ensure gallery is stringified JSON if present
+    if (data.gallery) {
+      if (typeof data.gallery === 'string') {
+        try {
+          // Validate it's valid JSON
+          JSON.parse(data.gallery);
+        } catch (e) {
+          // If not valid JSON, wrap in array
+          data.gallery = JSON.stringify([data.gallery]);
+        }
+      } else if (Array.isArray(data.gallery)) {
+        data.gallery = JSON.stringify(data.gallery);
+      }
     }
 
     await event.update(data);
@@ -180,6 +202,7 @@ export const updateEvent = async (req, res) => {
       message: 'Event updated successfully'
     });
   } catch (error) {
+    console.error('Error updating event:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating event',

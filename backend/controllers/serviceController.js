@@ -98,6 +98,7 @@ export const createService = async (req, res) => {
       message: 'Service created successfully'
     });
   } catch (error) {
+    console.error('Error creating service:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating service',
@@ -130,6 +131,7 @@ export const updateService = async (req, res) => {
       message: 'Service updated successfully'
     });
   } catch (error) {
+    console.error('Error updating service:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating service',

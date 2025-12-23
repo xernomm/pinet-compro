@@ -17,7 +17,6 @@ const ProductList = () => {
         description: '',
         features: '',
         benefits: '',
-        specifications: '',
         target_segment: '',
         image_url: '',
         gallery: '',
@@ -34,6 +33,24 @@ const ProductList = () => {
     const [previewImage, setPreviewImage] = useState(null);
     const [galleryFiles, setGalleryFiles] = useState([]);
     const [previewGallery, setPreviewGallery] = useState([]);
+    const [specificationEntries, setSpecificationEntries] = useState([{ key: '', value: '' }]);
+
+    // Specification entry handlers
+    const addSpecificationEntry = () => {
+        setSpecificationEntries([...specificationEntries, { key: '', value: '' }]);
+    };
+
+    const removeSpecificationEntry = (index) => {
+        if (specificationEntries.length > 1) {
+            setSpecificationEntries(specificationEntries.filter((_, i) => i !== index));
+        }
+    };
+
+    const updateSpecificationEntry = (index, field, value) => {
+        const updated = [...specificationEntries];
+        updated[index][field] = value;
+        setSpecificationEntries(updated);
+    };
 
     useEffect(() => {
         fetchProducts();
@@ -86,7 +103,6 @@ const ProductList = () => {
             description: '',
             features: '',
             benefits: '',
-            specifications: '',
             target_segment: '',
             image_url: '',
             gallery: '',
@@ -103,6 +119,7 @@ const ProductList = () => {
         setPreviewImage(null);
         setGalleryFiles([]);
         setPreviewGallery([]);
+        setSpecificationEntries([{ key: '', value: '' }]);
         setIsModalOpen(true);
     };
 
@@ -116,7 +133,6 @@ const ProductList = () => {
             description: product.description || '',
             features: Array.isArray(product.features) ? product.features.join('\n') : product.features || '',
             benefits: Array.isArray(product.benefits) ? product.benefits.join('\n') : product.benefits || '',
-            specifications: typeof product.specifications === 'object' ? JSON.stringify(product.specifications, null, 2) : product.specifications || '',
             target_segment: product.target_segment || '',
             image_url: product.image_url || '',
             gallery: Array.isArray(product.gallery) ? product.gallery.join('\n') : product.gallery || '',
@@ -129,6 +145,23 @@ const ProductList = () => {
             meta_title: product.meta_title || '',
             meta_description: product.meta_description || '',
         });
+
+        // Parse specifications to key-value entries
+        let specs = product.specifications;
+        if (typeof specs === 'string') {
+            try {
+                specs = JSON.parse(specs);
+            } catch (e) {
+                specs = {};
+            }
+        }
+        if (specs && typeof specs === 'object' && !Array.isArray(specs)) {
+            const entries = Object.entries(specs).map(([key, value]) => ({ key, value: String(value) }));
+            setSpecificationEntries(entries.length > 0 ? entries : [{ key: '', value: '' }]);
+        } else {
+            setSpecificationEntries([{ key: '', value: '' }]);
+        }
+
         setImage(null);
         if (product.image_url) {
             setPreviewImage(getImageUrl(product.image_url));
@@ -136,7 +169,7 @@ const ProductList = () => {
             setPreviewImage(null);
         }
         setGalleryFiles([]);
-        setPreviewGallery([]); // Can't easily preview existing gallery from URLs in file input, so just show nothing or custom preview
+        setPreviewGallery([]);
         setIsModalOpen(true);
     };
 
@@ -166,11 +199,15 @@ const ProductList = () => {
                 benefits.forEach(b => submitData.append('benefits', b));
             }
 
-            // Handle specifications
-            if (formData.specifications) {
-                // If it's valid JSON string, passing it as string is usually fine if backend parses it?
-                // Or parsed object? FormData values are strings/blobs.
-                submitData.append('specifications', formData.specifications);
+            // Handle specifications from key-value entries
+            const specsObject = {};
+            specificationEntries.forEach(entry => {
+                if (entry.key.trim()) {
+                    specsObject[entry.key.trim()] = entry.value.trim();
+                }
+            });
+            if (Object.keys(specsObject).length > 0) {
+                submitData.append('specifications', JSON.stringify(specsObject));
             }
 
             // Handle Images
@@ -358,15 +395,46 @@ const ProductList = () => {
                         ></textarea>
                     </div>
                     <div className="form-group">
-                        <label>Specifications (JSON format)</label>
-                        <textarea
-                            name="specifications"
-                            value={formData.specifications}
-                            onChange={handleInputChange}
-                            rows="3"
-                            className="form-control"
-                            placeholder='{"weight": "1kg", "dimensions": "10x10x10cm"}'
-                        ></textarea>
+                        <label>Specifications</label>
+                        <div style={{ border: '1px solid #ddd', borderRadius: '4px', padding: '10px', backgroundColor: '#f9f9f9' }}>
+                            {specificationEntries.map((entry, index) => (
+                                <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                                    <input
+                                        type="text"
+                                        value={entry.key}
+                                        onChange={(e) => updateSpecificationEntry(index, 'key', e.target.value)}
+                                        placeholder="Key (e.g., Weight)"
+                                        className="form-control"
+                                        style={{ flex: 1 }}
+                                    />
+                                    <input
+                                        type="text"
+                                        value={entry.value}
+                                        onChange={(e) => updateSpecificationEntry(index, 'value', e.target.value)}
+                                        placeholder="Value (e.g., 1kg)"
+                                        className="form-control"
+                                        style={{ flex: 1 }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeSpecificationEntry(index)}
+                                        className="btn btn-sm btn-danger"
+                                        disabled={specificationEntries.length === 1}
+                                        style={{ padding: '4px 8px' }}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={addSpecificationEntry}
+                                className="btn btn-sm btn-secondary"
+                                style={{ marginTop: '4px' }}
+                            >
+                                + Add Specification
+                            </button>
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Target Segment</label>

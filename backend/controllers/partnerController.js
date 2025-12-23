@@ -99,6 +99,7 @@ export const createPartner = async (req, res) => {
       message: 'Partner created successfully'
     });
   } catch (error) {
+    console.error('Error creating partner:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating partner',
@@ -131,6 +132,7 @@ export const updatePartner = async (req, res) => {
       message: 'Partner updated successfully'
     });
   } catch (error) {
+    console.error('Error updating partner:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating partner',

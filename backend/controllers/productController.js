@@ -101,17 +101,31 @@ export const createProduct = async (req, res) => {
         data.image_url = `/uploads/images/${req.files.image[0].filename}`;
       }
       if (req.files.gallery) {
-        data.gallery = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
+        const galleryPaths = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
+        data.gallery = JSON.stringify(galleryPaths);
       }
     }
 
-    // Parse specifications if string (from FormData)
-    if (typeof data.specifications === 'string') {
-      try {
-        data.specifications = JSON.parse(data.specifications);
-      } catch (e) {
-        // keep as string or handle error
+    // Parse and re-stringify JSON fields for TEXT columns
+    ['features', 'benefits', 'specifications'].forEach(field => {
+      if (data[field]) {
+        if (typeof data[field] === 'string') {
+          try {
+            // Validate it's valid JSON, then keep as string
+            JSON.parse(data[field]);
+          } catch (e) {
+            // If not valid JSON, wrap in array
+            data[field] = JSON.stringify([data[field]]);
+          }
+        } else if (Array.isArray(data[field]) || typeof data[field] === 'object') {
+          data[field] = JSON.stringify(data[field]);
+        }
       }
+    });
+
+    // Stringify gallery if it's an array
+    if (Array.isArray(data.gallery)) {
+      data.gallery = JSON.stringify(data.gallery);
     }
 
     const product = await Product.create(data);
@@ -122,6 +136,7 @@ export const createProduct = async (req, res) => {
       message: 'Product created successfully'
     });
   } catch (error) {
+    console.error('Error creating product:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating product',
@@ -150,16 +165,39 @@ export const updateProduct = async (req, res) => {
       }
       if (req.files.gallery) {
         const newGallery = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
-        const existingGallery = product.gallery || [];
-        data.gallery = [...existingGallery, ...newGallery];
+        // Parse existing gallery if it's a string
+        let existingGallery = product.gallery || [];
+        if (typeof existingGallery === 'string') {
+          try {
+            existingGallery = JSON.parse(existingGallery);
+          } catch (e) {
+            existingGallery = [];
+          }
+        }
+        data.gallery = JSON.stringify([...existingGallery, ...newGallery]);
       }
     }
 
-    // Parse specifications if string
-    if (typeof data.specifications === 'string') {
-      try {
-        data.specifications = JSON.parse(data.specifications);
-      } catch (e) { }
+    // Parse and re-stringify JSON fields for TEXT columns
+    ['features', 'benefits', 'specifications'].forEach(field => {
+      if (data[field]) {
+        if (typeof data[field] === 'string') {
+          try {
+            // Validate it's valid JSON, then keep as string
+            JSON.parse(data[field]);
+          } catch (e) {
+            // If not valid JSON, wrap in array
+            data[field] = JSON.stringify([data[field]]);
+          }
+        } else if (Array.isArray(data[field]) || typeof data[field] === 'object') {
+          data[field] = JSON.stringify(data[field]);
+        }
+      }
+    });
+
+    // Stringify gallery if it's an array
+    if (Array.isArray(data.gallery)) {
+      data.gallery = JSON.stringify(data.gallery);
     }
 
     await product.update(data);
@@ -170,6 +208,7 @@ export const updateProduct = async (req, res) => {
       message: 'Product updated successfully'
     });
   } catch (error) {
+    console.error('Error updating product:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating product',

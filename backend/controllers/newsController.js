@@ -107,8 +107,14 @@ export const createNews = async (req, res) => {
         data.featured_image = `/uploads/images/${req.files.featured_image[0].filename}`;
       }
       if (req.files.gallery) {
-        data.gallery = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
+        const galleryPaths = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
+        data.gallery = JSON.stringify(galleryPaths);
       }
+    }
+
+    // Stringify gallery if it's still an array
+    if (Array.isArray(data.gallery)) {
+      data.gallery = JSON.stringify(data.gallery);
     }
 
     const news = await News.create(data);
@@ -119,6 +125,7 @@ export const createNews = async (req, res) => {
       message: 'News created successfully'
     });
   } catch (error) {
+    console.error('Error creating news:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating news',
@@ -146,10 +153,22 @@ export const updateNews = async (req, res) => {
       }
       if (req.files.gallery) {
         const newGallery = req.files.gallery.map(file => `/uploads/gallery/${file.filename}`);
-        // Append new images to existing gallery
-        const existingGallery = news.gallery || [];
-        data.gallery = [...existingGallery, ...newGallery];
+        // Parse existing gallery if it's a string
+        let existingGallery = news.gallery || [];
+        if (typeof existingGallery === 'string') {
+          try {
+            existingGallery = JSON.parse(existingGallery);
+          } catch (e) {
+            existingGallery = [];
+          }
+        }
+        data.gallery = JSON.stringify([...existingGallery, ...newGallery]);
       }
+    }
+
+    // Stringify gallery if it's still an array
+    if (Array.isArray(data.gallery)) {
+      data.gallery = JSON.stringify(data.gallery);
     }
 
     await news.update(data);
@@ -160,6 +179,7 @@ export const updateNews = async (req, res) => {
       message: 'News updated successfully'
     });
   } catch (error) {
+    console.error('Error updating news:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating news',

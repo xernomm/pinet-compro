@@ -100,6 +100,7 @@ export const createClient = async (req, res) => {
       message: 'Client created successfully'
     });
   } catch (error) {
+    console.error('Error creating client:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating client',
@@ -132,6 +133,7 @@ export const updateClient = async (req, res) => {
       message: 'Client updated successfully'
     });
   } catch (error) {
+    console.error('Error updating client:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating client',

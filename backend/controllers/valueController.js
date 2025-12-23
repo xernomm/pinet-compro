@@ -66,6 +66,7 @@ export const createValue = async (req, res) => {
       message: 'Value created successfully'
     });
   } catch (error) {
+    console.error('Error creating value:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating value',
@@ -98,6 +99,7 @@ export const updateValue = async (req, res) => {
       message: 'Value updated successfully'
     });
   } catch (error) {
+    console.error('Error updating value:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating value',

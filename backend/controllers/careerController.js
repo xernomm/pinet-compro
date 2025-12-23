@@ -152,6 +152,7 @@ export const createCareer = async (req, res) => {
       message: 'Career created successfully'
     });
   } catch (error) {
+    console.error('Error creating career:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating career',
@@ -191,6 +192,7 @@ export const updateCareer = async (req, res) => {
       message: 'Career updated successfully'
     });
   } catch (error) {
+    console.error('Error updating career:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating career',
