@@ -30,7 +30,7 @@ const app = express();
 
 // CORS configuration - allow frontend to access backend resources
 const corsOptions = {
-  origin: ['http://192.168.30.27:3000', 'http://192.168.30.27:3001'], // React dev server ports
+  origin: ['http://192.168.30.27:3000', 'http://192.168.30.27:3001', "http://localhost:3000", "http://localhost:3001"], // React dev server ports
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

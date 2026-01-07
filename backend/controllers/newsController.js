@@ -98,9 +98,36 @@ export const getNewsBySlug = async (req, res) => {
   }
 };
 
+// Helper function to sanitize news data
+const sanitizeNewsData = (data) => {
+  const sanitized = { ...data };
+
+  // Handle INTEGER fields
+  if (sanitized.views === '' || sanitized.views === undefined) {
+    sanitized.views = 0;
+  } else {
+    sanitized.views = parseInt(sanitized.views, 10) || 0;
+  }
+
+  // Handle boolean fields
+  if (typeof sanitized.is_published === 'string') {
+    sanitized.is_published = sanitized.is_published === 'true';
+  }
+  if (typeof sanitized.is_featured === 'string') {
+    sanitized.is_featured = sanitized.is_featured === 'true';
+  }
+
+  // Handle DATE fields - convert empty string to null
+  if (sanitized.published_date === '' || sanitized.published_date === undefined) {
+    sanitized.published_date = null;
+  }
+
+  return sanitized;
+};
+
 export const createNews = async (req, res) => {
   try {
-    const data = { ...req.body };
+    const data = sanitizeNewsData(req.body);
 
     if (req.files) {
       if (req.files.featured_image) {
@@ -145,7 +172,7 @@ export const updateNews = async (req, res) => {
       });
     }
 
-    const data = { ...req.body };
+    const data = sanitizeNewsData(req.body);
 
     if (req.files) {
       if (req.files.featured_image) {

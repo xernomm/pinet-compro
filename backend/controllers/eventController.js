@@ -122,9 +122,56 @@ export const getUpcomingEvents = async (req, res) => {
   }
 };
 
+// Helper function to sanitize event data
+const sanitizeEventData = (data) => {
+  const sanitized = { ...data };
+
+  // Handle ENUM fields - use default if empty
+  if (!sanitized.event_type || sanitized.event_type === '') {
+    sanitized.event_type = 'seminar';
+  }
+  if (!sanitized.status || sanitized.status === '') {
+    sanitized.status = 'upcoming';
+  }
+
+  // Handle INTEGER fields
+  if (sanitized.max_participants === '' || sanitized.max_participants === undefined) {
+    sanitized.max_participants = null;
+  } else if (sanitized.max_participants) {
+    sanitized.max_participants = parseInt(sanitized.max_participants, 10) || null;
+  }
+
+  // Handle boolean fields
+  if (typeof sanitized.is_online === 'string') {
+    sanitized.is_online = sanitized.is_online === 'true';
+  }
+  if (typeof sanitized.is_featured === 'string') {
+    sanitized.is_featured = sanitized.is_featured === 'true';
+  }
+  if (typeof sanitized.is_published === 'string') {
+    sanitized.is_published = sanitized.is_published === 'true';
+  }
+
+  // Handle DATE fields - convert empty string to null
+  ['start_date', 'end_date'].forEach(field => {
+    if (sanitized[field] === '' || sanitized[field] === undefined) {
+      sanitized[field] = null;
+    }
+  });
+
+  // Handle TIME fields - convert empty string to null
+  ['start_time', 'end_time'].forEach(field => {
+    if (sanitized[field] === '' || sanitized[field] === undefined) {
+      sanitized[field] = null;
+    }
+  });
+
+  return sanitized;
+};
+
 export const createEvent = async (req, res) => {
   try {
-    const data = { ...req.body };
+    const data = sanitizeEventData(req.body);
 
     if (req.file) {
       data.featured_image = `/uploads/images/${req.file.filename}`;
@@ -173,7 +220,7 @@ export const updateEvent = async (req, res) => {
       });
     }
 
-    const data = { ...req.body };
+    const data = sanitizeEventData(req.body);
 
     if (req.file) {
       data.featured_image = `/uploads/images/${req.file.filename}`;

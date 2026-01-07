@@ -85,9 +85,37 @@ export const getClientBySlug = async (req, res) => {
   }
 };
 
+// Helper function to sanitize client data
+const sanitizeClientData = (data) => {
+  const sanitized = { ...data };
+
+  // Handle INTEGER fields - convert to null if empty
+  if (sanitized.collaboration_since === '' || sanitized.collaboration_since === undefined) {
+    sanitized.collaboration_since = null;
+  } else if (sanitized.collaboration_since) {
+    sanitized.collaboration_since = parseInt(sanitized.collaboration_since, 10) || null;
+  }
+
+  if (sanitized.order_number === '' || sanitized.order_number === undefined) {
+    sanitized.order_number = 0;
+  } else {
+    sanitized.order_number = parseInt(sanitized.order_number, 10) || 0;
+  }
+
+  // Handle boolean fields
+  if (typeof sanitized.is_active === 'string') {
+    sanitized.is_active = sanitized.is_active === 'true';
+  }
+  if (typeof sanitized.is_featured === 'string') {
+    sanitized.is_featured = sanitized.is_featured === 'true';
+  }
+
+  return sanitized;
+};
+
 export const createClient = async (req, res) => {
   try {
-    const data = { ...req.body };
+    const data = sanitizeClientData(req.body);
     if (req.file) {
       data.logo_url = `/uploads/logos/${req.file.filename}`;
     }
@@ -120,7 +148,7 @@ export const updateClient = async (req, res) => {
       });
     }
 
-    const data = { ...req.body };
+    const data = sanitizeClientData(req.body);
     if (req.file) {
       data.logo_url = `/uploads/logos/${req.file.filename}`;
     }

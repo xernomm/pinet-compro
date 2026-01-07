@@ -91,9 +91,31 @@ export const getProductBySlug = async (req, res) => {
   }
 };
 
+// Helper function to sanitize product data
+const sanitizeProductData = (data) => {
+  const sanitized = { ...data };
+
+  // Handle INTEGER fields
+  if (sanitized.order_number === '' || sanitized.order_number === undefined) {
+    sanitized.order_number = 0;
+  } else {
+    sanitized.order_number = parseInt(sanitized.order_number, 10) || 0;
+  }
+
+  // Handle boolean fields
+  if (typeof sanitized.is_active === 'string') {
+    sanitized.is_active = sanitized.is_active === 'true';
+  }
+  if (typeof sanitized.is_featured === 'string') {
+    sanitized.is_featured = sanitized.is_featured === 'true';
+  }
+
+  return sanitized;
+};
+
 export const createProduct = async (req, res) => {
   try {
-    const data = { ...req.body };
+    const data = sanitizeProductData(req.body);
 
     // Handle file uploads
     if (req.files) {
@@ -156,7 +178,7 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    const data = { ...req.body };
+    const data = sanitizeProductData(req.body);
 
     // Handle file uploads
     if (req.files) {

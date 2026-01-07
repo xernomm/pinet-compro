@@ -130,14 +130,57 @@ export const getOpenPositions = async (req, res) => {
   }
 };
 
+// Helper function to sanitize career data
+const sanitizeCareerData = (data) => {
+  const sanitized = { ...data };
+
+  // Handle ENUM fields - use default if empty
+  if (!sanitized.employment_type || sanitized.employment_type === '') {
+    sanitized.employment_type = 'full_time';
+  }
+  if (!sanitized.status || sanitized.status === '') {
+    sanitized.status = 'open';
+  }
+  // experience_level can be null, so only set to null if empty
+  if (sanitized.experience_level === '') {
+    sanitized.experience_level = null;
+  }
+
+  // Handle INTEGER fields
+  if (sanitized.views === '' || sanitized.views === undefined) {
+    sanitized.views = 0;
+  } else {
+    sanitized.views = parseInt(sanitized.views, 10) || 0;
+  }
+
+  // Handle boolean fields
+  if (typeof sanitized.is_featured === 'string') {
+    sanitized.is_featured = sanitized.is_featured === 'true';
+  }
+  if (typeof sanitized.is_active === 'string') {
+    sanitized.is_active = sanitized.is_active === 'true';
+  }
+
+  // Handle DATE fields - convert empty string to null
+  if (sanitized.application_deadline === '' || sanitized.application_deadline === undefined) {
+    sanitized.application_deadline = null;
+  }
+  if (sanitized.posted_date === '' || sanitized.posted_date === undefined) {
+    sanitized.posted_date = new Date();
+  }
+
+  return sanitized;
+};
+
 export const createCareer = async (req, res) => {
   try {
+    const sanitized = sanitizeCareerData(req.body);
     const {
       job_title, slug, department, location, employment_type, experience_level,
       salary_range, description, responsibilities, requirements, qualifications,
       benefits, application_deadline, contact_email, application_url,
       is_featured, is_active, status
-    } = req.body;
+    } = sanitized;
 
     const career = await Career.create({
       job_title, slug, department, location, employment_type, experience_level,
@@ -172,12 +215,13 @@ export const updateCareer = async (req, res) => {
       });
     }
 
+    const sanitized = sanitizeCareerData(req.body);
     const {
       job_title, slug, department, location, employment_type, experience_level,
       salary_range, description, responsibilities, requirements, qualifications,
       benefits, application_deadline, contact_email, application_url,
       is_featured, is_active, status
-    } = req.body;
+    } = sanitized;
 
     await career.update({
       job_title, slug, department, location, employment_type, experience_level,
