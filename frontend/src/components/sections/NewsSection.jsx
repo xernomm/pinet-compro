@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, IconButton, Chip } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Link } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
 import StarIcon from '@mui/icons-material/Star';
-import { getImageUrl, parseJSON } from '../../utils/imageUtils';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { getImageUrl } from '../../utils/imageUtils';
 import { format } from 'date-fns';
 import { GridPlaceholder } from '../PlaceholderCard';
 
 const NewsSection = ({ news }) => {
-    const [selectedNews, setSelectedNews] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState('all');
 
     const publishedNews = news.filter(item => item.is_published);
@@ -22,14 +21,6 @@ const NewsSection = ({ news }) => {
     const featuredNews = filteredNews.filter(n => n.is_featured);
     const regularNews = filteredNews.filter(n => !n.is_featured);
     const displayNews = [...featuredNews, ...regularNews].slice(0, 6);
-
-    const handleOpenModal = (newsItem) => {
-        setSelectedNews(newsItem);
-    };
-
-    const handleCloseModal = () => {
-        setSelectedNews(null);
-    };
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -80,10 +71,10 @@ const NewsSection = ({ news }) => {
             {/* News Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {displayNews.map((item, index) => (
-                    <div
+                    <Link
                         key={item.id}
-                        className="card group cursor-pointer h-full flex flex-col"
-                        onClick={() => handleOpenModal(item)}
+                        to={`/news/${item.slug}`}
+                        className="card group cursor-pointer h-full flex flex-col block"
                         style={{
                             animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
                         }}
@@ -95,16 +86,24 @@ const NewsSection = ({ news }) => {
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
                             {item.category && (
                                 <span className="absolute top-4 right-4 bg-primary-600 text-white text-xs px-3 py-1 rounded-full shadow-lg">
                                     {item.category}
                                 </span>
                             )}
                             {item.is_featured && (
-                                <span className="absolute top-4 left-4 bg-yellow-500 text-white p-1 rounded-full shadow-lg">
+                                <span className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white p-1.5 rounded-full shadow-lg">
                                     <StarIcon fontSize="small" />
                                 </span>
                             )}
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span className="bg-white/90 dark:bg-dark-800/90 backdrop-blur-sm px-4 py-2 rounded-full text-primary-600 dark:text-primary-400 font-semibold flex items-center gap-2 shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                    Read Article <ArrowForwardIcon fontSize="small" />
+                                </span>
+                            </div>
                         </div>
                         <div className="p-6 flex-grow flex flex-col">
                             <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3 space-x-4">
@@ -129,100 +128,9 @@ const NewsSection = ({ news }) => {
                                 Read More →
                             </span>
                         </div>
-                    </div>
+                    </Link>
                 ))}
             </div>
-
-            {/* News Detail Modal */}
-            <Dialog
-                open={Boolean(selectedNews)}
-                onClose={handleCloseModal}
-                maxWidth="md"
-                fullWidth
-                PaperProps={{
-                    className: 'bg-white dark:bg-dark-900 text-gray-900 dark:text-gray-100'
-                }}
-            >
-                {selectedNews && (
-                    <>
-                        <DialogTitle className="flex justify-between items-center border-b border-gray-200 dark:border-dark-700">
-                            <span className="text-xl font-bold pr-8">{selectedNews.title}</span>
-                            <IconButton onClick={handleCloseModal} className="text-gray-500 hover:text-red-500">
-                                <CloseIcon />
-                            </IconButton>
-                        </DialogTitle>
-                        <DialogContent className="mt-4">
-                            {/* Gallery Carousel in Modal */}
-                            {(() => {
-                                const gallery = parseJSON(selectedNews.gallery, []);
-                                const images = gallery.length > 0 ? gallery : (selectedNews.featured_image ? [selectedNews.featured_image] : []);
-
-                                if (images.length > 0) {
-                                    return (
-                                        <div className="mb-6 rounded-xl overflow-hidden shadow-lg">
-                                            <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar">
-                                                {images.map((img, idx) => (
-                                                    <div key={idx} className="flex-shrink-0 w-full snap-center">
-                                                        <img
-                                                            src={getImageUrl(img)}
-                                                            alt={`${selectedNews.title} - ${idx + 1}`}
-                                                            className="w-full h-64 md:h-96 object-cover"
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            {images.length > 1 && (
-                                                <div className="text-center text-sm text-gray-500 mt-2">
-                                                    Swipe to see more images ({images.length})
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                }
-                                return null;
-                            })()}
-
-                            <div className="flex items-center space-x-4 mb-6 text-sm text-gray-500 dark:text-gray-400">
-                                <span className="flex items-center bg-gray-100 dark:bg-dark-800 px-3 py-1 rounded-full">
-                                    <CalendarTodayIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                                    {formatDate(selectedNews.published_date)}
-                                </span>
-                                {selectedNews.author && (
-                                    <span className="flex items-center bg-gray-100 dark:bg-dark-800 px-3 py-1 rounded-full">
-                                        <PersonIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                                        {selectedNews.author}
-                                    </span>
-                                )}
-                                {selectedNews.category && (
-                                    <span className="bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-3 py-1 rounded-full font-medium">
-                                        {selectedNews.category}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div
-                                className="prose dark:prose-invert max-w-none"
-                                dangerouslySetInnerHTML={{ __html: selectedNews.content }}
-                            />
-
-                            {selectedNews.tags && (
-                                <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-700">
-                                    <div className="flex flex-wrap gap-2">
-                                        {selectedNews.tags.split(',').map((tag, index) => (
-                                            <Chip
-                                                key={index}
-                                                label={tag.trim()}
-                                                size="small"
-                                                className="bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-400"
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </DialogContent>
-                    </>
-                )}
-            </Dialog>
         </section>
     );
 };

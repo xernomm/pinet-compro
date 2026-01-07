@@ -1,189 +1,78 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import { ThemeProvider } from './context/ThemeContext';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import ScrollToTop from './components/ScrollToTop';
-import SocialMediaWidget from './components/SocialMediaWidget';
-import Loading from './components/Loading';
 
-// Section Components
-import HeroSection from './components/sections/HeroSection';
-import AboutSection from './components/sections/AboutSection';
-import ServicesSection from './components/sections/ServicesSection';
-import ValuesSection from './components/sections/ValuesSection';
-import StatsSection from './components/sections/StatsSection';
-import ProductsSection from './components/sections/ProductsSection';
-import PartnersSection from './components/sections/PartnersSection';
-import ClientsSection from './components/sections/ClientsSection';
-import NewsSection from './components/sections/NewsSection';
-import EventsSection from './components/sections/EventsSection';
-import CareersSection from './components/sections/CareersSection';
-import ContactSection from './components/sections/ContactSection';
+// Pages
+import HomePage from './pages/HomePage';
+import ProductDetail from './pages/ProductDetail';
+import ServiceDetail from './pages/ServiceDetail';
+import NewsDetail from './pages/NewsDetail';
+import EventDetail from './pages/EventDetail';
+import CareerDetail from './pages/CareerDetail';
 
 // API Services
-import {
-  companyAPI,
-  heroAPI,
-  serviceAPI,
-  valueAPI,
-  productAPI,
-  partnerAPI,
-  clientAPI,
-  newsAPI,
-  eventAPI,
-  careerAPI,
-} from './api/apiService';
+import { companyAPI } from './api/apiService';
 
-function App() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [data, setData] = useState({
-    companyInfo: null,
-    heroes: [],
-    services: [],
-    values: [],
-    products: [],
-    partners: [],
-    clients: [],
-    news: [],
-    events: [],
-    careers: [],
-  });
+// Scroll to top on route change
+function ScrollToTopOnNavigate() {
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    const fetchData = async () => {
+    // If there's a hash, scroll to that element
+    if (hash) {
+      const element = document.querySelector(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+    }
+    // Otherwise scroll to top
+    window.scrollTo(0, 0);
+  }, [pathname, hash]);
+
+  return null;
+}
+
+function App() {
+  const [companyInfo, setCompanyInfo] = useState(null);
+
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
       try {
-        setLoading(true);
-
-        // Fetch all data in parallel
-        const [
-          companyRes,
-          heroesRes,
-          servicesRes,
-          valuesRes,
-          productsRes,
-          partnersRes,
-          clientsRes,
-          newsRes,
-          eventsRes,
-          careersRes,
-        ] = await Promise.all([
-          companyAPI.getInfo().catch(() => ({ data: null })),
-          heroAPI.getAll().catch(() => ({ data: [] })),
-          serviceAPI.getAll().catch(() => ({ data: [] })),
-          valueAPI.getAll().catch(() => ({ data: [] })),
-          productAPI.getAll().catch(() => ({ data: [] })),
-          partnerAPI.getAll().catch(() => ({ data: [] })),
-          clientAPI.getAll().catch(() => ({ data: [] })),
-          newsAPI.getAll().catch(() => ({ data: [] })),
-          eventAPI.getAll().catch(() => ({ data: [] })),
-          careerAPI.getAll().catch(() => ({ data: [] })),
-        ]);
-
-        setData({
-          companyInfo: companyRes.data,
-          heroes: Array.isArray(heroesRes.data) ? heroesRes.data : [],
-          services: Array.isArray(servicesRes.data) ? servicesRes.data : [],
-          values: Array.isArray(valuesRes.data) ? valuesRes.data : [],
-          products: Array.isArray(productsRes.data) ? productsRes.data : [],
-          partners: Array.isArray(partnersRes.data) ? partnersRes.data : [],
-          clients: Array.isArray(clientsRes.data) ? clientsRes.data : [],
-          news: Array.isArray(newsRes.data) ? newsRes.data : [],
-          events: Array.isArray(eventsRes.data) ? eventsRes.data : [],
-          careers: Array.isArray(careersRes.data) ? careersRes.data : [],
-        });
-        console.log(data);
+        const response = await companyAPI.getInfo();
+        setCompanyInfo(response.data);
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load data. Please try again later.');
-      } finally {
-        setLoading(false);
+        console.error('Error fetching company info:', err);
       }
     };
-
-    fetchData();
-
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px',
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-fadeIn');
-        }
-      });
-    }, observerOptions);
-
-    // Observe all sections after a short delay to ensure DOM is ready
-    setTimeout(() => {
-      const sections = document.querySelectorAll('section');
-      sections.forEach((section) => observer.observe(section));
-    }, 100);
-
-    return () => observer.disconnect();
+    fetchCompanyInfo();
   }, []);
-
-  if (loading) {
-    return <Loading fullScreen />;
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-dark-950">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-primary-600 dark:text-primary-400 mb-4">
-            Oops!
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="btn-primary"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="App">
-      <Navbar companyInfo={data.companyInfo} />
-
-      <main>
-        <HeroSection heroes={data.heroes} />
-        <AboutSection companyInfo={data.companyInfo} />
-        <StatsSection companyInfo={data.companyInfo} />
-        <ServicesSection services={data.services} />
-        <ValuesSection values={data.values} />
-        <ProductsSection products={data.products} />
-        <PartnersSection partners={data.partners} />
-        <ClientsSection clients={data.clients} />
-        <NewsSection news={data.news} />
-        <EventsSection events={data.events} />
-        <CareersSection careers={data.careers} />
-        <ContactSection companyInfo={data.companyInfo} />
-      </main>
-
-      <Footer companyInfo={data.companyInfo} />
-      <ScrollToTop />
-      <SocialMediaWidget companyInfo={data.companyInfo} />
+      <ScrollToTopOnNavigate />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/products/:slug" element={<ProductDetail companyInfo={companyInfo} />} />
+        <Route path="/services/:slug" element={<ServiceDetail companyInfo={companyInfo} />} />
+        <Route path="/news/:slug" element={<NewsDetail companyInfo={companyInfo} />} />
+        <Route path="/events/:slug" element={<EventDetail companyInfo={companyInfo} />} />
+        <Route path="/careers/:slug" element={<CareerDetail companyInfo={companyInfo} />} />
+      </Routes>
     </div>
   );
 }
 
-// Wrap App with ThemeProvider
-function AppWithTheme() {
+// Wrap App with ThemeProvider and Router
+function AppWithProviders() {
   return (
     <ThemeProvider>
-      <App />
+      <Router>
+        <App />
+      </Router>
     </ThemeProvider>
   );
 }
 
-export default AppWithTheme;
-
+export default AppWithProviders;
