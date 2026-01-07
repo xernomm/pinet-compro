@@ -385,6 +385,37 @@ const ContactSection = ({ companyInfo }) => {
                 </div>
             </div>
 
+            {/* Map Section */}
+            <div className="mt-12">
+                <div className="card p-4 h-96 overflow-hidden relative group">
+                    <iframe
+                        title="Google Maps Location"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.6507182963956!2d106.78610947475013!3d-6.177489093809894!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f6aa7706f5af%3A0x2c11a8e7bb2c1e53!2sPT%20Prima%20Integrasi%20Network!5e0!3m2!1sid!2sid!4v1767774503301!5m2!1sid!2sid"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen=""
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="rounded-2xl w-full h-full grayscale hover:grayscale-0 transition-all duration-500"
+                    ></iframe>
+
+                    {/* Overlay Button */}
+                    <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <a
+                            href="https://maps.app.goo.gl/2CctpbXDG9i7vbmWA"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-primary shadow-lg flex items-center gap-2"
+                        >
+                            <LocationOnIcon fontSize="small" />
+                            Open in Google Maps
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
             {/* Snackbar for notifications */}
             <Snackbar
                 open={snackbar.open}
