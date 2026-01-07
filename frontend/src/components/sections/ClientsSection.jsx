@@ -14,7 +14,6 @@ const ClientsSection = ({ clients }) => {
 
     const activeClients = clients.filter(client => client.is_active);
     const clientsWithTestimonials = activeClients.filter(client => client.testimonial);
-    const featuredClients = activeClients.filter(client => client.is_featured);
 
     // Auto-advance testimonials
     useEffect(() => {
@@ -155,8 +154,8 @@ const ClientsSection = ({ clients }) => {
                                                 key={index}
                                                 onClick={() => setCurrentTestimonial(index)}
                                                 className={`h-2 rounded-full transition-all duration-500 ${index === currentTestimonial
-                                                        ? 'bg-gradient-to-r from-red-500 to-rose-600 w-8'
-                                                        : 'bg-gray-300 dark:bg-gray-600 w-2 hover:bg-gray-400'
+                                                    ? 'bg-gradient-to-r from-red-500 to-rose-600 w-8'
+                                                    : 'bg-gray-300 dark:bg-gray-600 w-2 hover:bg-gray-400'
                                                     }`}
                                             />
                                         ))}

@@ -113,13 +113,13 @@ const EventDetail = ({ companyInfo }) => {
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Back Button */}
-                    <button
-                        onClick={() => navigate(-1)}
+                    <Link
+                        to="/#events"
                         className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors group"
                     >
                         <ArrowBackIcon className="mr-2 group-hover:-translate-x-1 transition-transform" />
                         Back to Events
-                    </button>
+                    </Link>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         {/* Event Info */}
@@ -227,8 +227,8 @@ const EventDetail = ({ companyInfo }) => {
                                                     key={idx}
                                                     onClick={() => setActiveImage(idx)}
                                                     className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx
-                                                            ? 'border-white ring-2 ring-white/50'
-                                                            : 'border-transparent hover:border-white/50'
+                                                        ? 'border-white ring-2 ring-white/50'
+                                                        : 'border-transparent hover:border-white/50'
                                                         }`}
                                                 >
                                                     <img

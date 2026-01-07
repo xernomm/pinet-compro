@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Chip, IconButton } from '@mui/material';
+import { Chip } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import StarIcon from '@mui/icons-material/Star';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -88,13 +88,13 @@ const ProductDetail = ({ companyInfo }) => {
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Back Button */}
-                    <button
-                        onClick={() => navigate(-1)}
+                    <Link
+                        to="/#products"
                         className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors group"
                     >
                         <ArrowBackIcon className="mr-2 group-hover:-translate-x-1 transition-transform" />
                         Back to Products
-                    </button>
+                    </Link>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         {/* Product Info */}
@@ -194,8 +194,8 @@ const ProductDetail = ({ companyInfo }) => {
                                                 key={idx}
                                                 onClick={() => setActiveImage(idx)}
                                                 className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${activeImage === idx
-                                                        ? 'border-primary-500 ring-2 ring-primary-500/50'
-                                                        : 'border-transparent hover:border-white/50'
+                                                    ? 'border-primary-500 ring-2 ring-primary-500/50'
+                                                    : 'border-transparent hover:border-white/50'
                                                     }`}
                                             >
                                                 <img

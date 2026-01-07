@@ -11,7 +11,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 
 const AboutSection = ({ companyInfo }) => {
-    const [activeWidget, setActiveWidget] = useState(null);
+    const [activeTab, setActiveTab] = useState(0);
     const [isVisible, setIsVisible] = useState({});
     const sectionRef = useRef(null);
 
@@ -38,40 +38,36 @@ const AboutSection = ({ companyInfo }) => {
 
     if (!companyInfo) return null;
 
-    const widgetData = [
+    const tabData = [
         {
             id: 'about',
             label: 'About Us',
-            icon: <BusinessIcon sx={{ fontSize: 40 }} />,
+            icon: <BusinessIcon />,
             content: companyInfo.about,
-            gradient: 'from-red-500 to-rose-600',
-            delay: '0ms',
+            color: 'from-red-500 to-rose-600',
         },
         {
             id: 'history',
-            label: 'Our History',
-            icon: <HistoryIcon sx={{ fontSize: 40 }} />,
+            label: 'History',
+            icon: <HistoryIcon />,
             content: companyInfo.history,
-            gradient: 'from-amber-500 to-orange-600',
-            delay: '100ms',
+            color: 'from-amber-500 to-orange-600',
         },
         {
             id: 'vision',
             label: 'Vision',
-            icon: <VisibilityIcon sx={{ fontSize: 40 }} />,
+            icon: <VisibilityIcon />,
             content: companyInfo.vision,
-            gradient: 'from-blue-500 to-indigo-600',
-            delay: '200ms',
+            color: 'from-blue-500 to-indigo-600',
         },
         {
             id: 'mission',
             label: 'Mission',
-            icon: <TrackChangesIcon sx={{ fontSize: 40 }} />,
+            icon: <TrackChangesIcon />,
             content: companyInfo.mission,
-            gradient: 'from-emerald-500 to-teal-600',
-            delay: '300ms',
+            color: 'from-emerald-500 to-teal-600',
         },
-    ].filter(widget => widget.content);
+    ].filter(tab => tab.content);
 
     const statsData = [
         {
@@ -79,7 +75,7 @@ const AboutSection = ({ companyInfo }) => {
             value: companyInfo.established_year ? new Date().getFullYear() - companyInfo.established_year : null,
             label: 'Years of Excellence',
             suffix: '+',
-            icon: <EmojiEventsIcon sx={{ fontSize: 32 }} />,
+            icon: <EmojiEventsIcon sx={{ fontSize: 28 }} />,
             gradient: 'from-red-500 to-rose-600',
         },
         {
@@ -87,7 +83,7 @@ const AboutSection = ({ companyInfo }) => {
             value: companyInfo.established_year,
             label: 'Established',
             prefix: 'Est. ',
-            icon: <GroupsIcon sx={{ fontSize: 32 }} />,
+            icon: <GroupsIcon sx={{ fontSize: 28 }} />,
             gradient: 'from-orange-500 to-amber-600',
         },
         {
@@ -95,7 +91,7 @@ const AboutSection = ({ companyInfo }) => {
             value: 100,
             label: 'Commitment',
             suffix: '%',
-            icon: <HandshakeIcon sx={{ fontSize: 32 }} />,
+            icon: <HandshakeIcon sx={{ fontSize: 28 }} />,
             gradient: 'from-emerald-500 to-teal-600',
         },
     ].filter(stat => stat.value !== null);
@@ -145,141 +141,149 @@ const AboutSection = ({ companyInfo }) => {
         <section id="about" className="section-container bg-gray-50 dark:bg-dark-900 relative overflow-hidden" ref={sectionRef}>
             {/* Background Decorations */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-red-500/10 to-rose-500/5 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-red-500/10 to-rose-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10">
                 {/* Header */}
-                <div className="text-center mb-16">
+                <div className="text-center mb-12">
                     <h2 className="section-title">About {companyInfo.company_name}</h2>
                     {companyInfo.tagline && (
                         <p className="section-subtitle">{companyInfo.tagline}</p>
                     )}
                 </div>
 
-                {/* Animated Stats Cards */}
+                {/* Stats Row */}
                 {statsData.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-12">
                         {statsData.map((stat, index) => (
                             <div
                                 key={stat.id}
                                 data-widget={`stat-${stat.id}`}
                                 className={`
-                                    relative group cursor-pointer overflow-hidden
-                                    bg-white dark:bg-dark-800 rounded-2xl p-8
+                                    relative group overflow-hidden
+                                    bg-white dark:bg-dark-800 rounded-2xl p-6 md:p-8
                                     border border-gray-200 dark:border-dark-700
                                     transform transition-all duration-500
-                                    hover:scale-105 hover:-translate-y-2
+                                    hover:scale-[1.02] hover:-translate-y-1
                                     ${isVisible[`stat-${stat.id}`] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
                                 `}
                                 style={{ transitionDelay: `${index * 100}ms` }}
                             >
-                                {/* Gradient Background on Hover */}
-                                <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
-
-                                {/* Icon with pulse effect */}
-                                <div className={`
-                                    inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4
-                                    bg-gradient-to-br ${stat.gradient} text-white
-                                    group-hover:scale-110 group-hover:rotate-6 transition-all duration-500
-                                    shadow-lg group-hover:shadow-xl
-                                `}>
-                                    {stat.icon}
-                                </div>
-
-                                {/* Counter */}
-                                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent mb-2">
-                                    <AnimatedCounter
-                                        value={stat.value}
-                                        prefix={stat.prefix || ''}
-                                        suffix={stat.suffix || ''}
-                                    />
-                                </div>
-
-                                <div className="text-gray-600 dark:text-gray-400 font-medium">
-                                    {stat.label}
-                                </div>
-
-                                {/* Decorative corner */}
-                                <div className={`absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br ${stat.gradient} rounded-full opacity-5 group-hover:opacity-20 transition-opacity duration-500`}></div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Info Widget Cards */}
-                {widgetData.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-                        {widgetData.map((widget, index) => (
-                            <div
-                                key={widget.id}
-                                data-widget={widget.id}
-                                className={`
-                                    relative group cursor-pointer overflow-hidden
-                                    bg-white dark:bg-dark-800 rounded-2xl
-                                    border border-gray-200 dark:border-dark-700
-                                    transform transition-all duration-700
-                                    ${activeWidget === widget.id ? 'ring-2 ring-primary-500 shadow-red-glow' : ''}
-                                    ${isVisible[widget.id] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
-                                `}
-                                style={{ transitionDelay: widget.delay }}
-                                onClick={() => setActiveWidget(activeWidget === widget.id ? null : widget.id)}
-                            >
-                                {/* Header Bar with Gradient */}
-                                <div className={`
-                                    flex items-center gap-4 p-6
-                                    bg-gradient-to-r ${widget.gradient}
-                                    text-white
-                                `}>
-                                    <div className="transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-                                        {widget.icon}
-                                    </div>
-                                    <h3 className="text-xl font-bold">{widget.label}</h3>
-
-                                    {/* Expand Indicator */}
+                                <div className="flex items-center gap-4">
                                     <div className={`
-                                        ml-auto w-8 h-8 rounded-full bg-white/20 flex items-center justify-center
-                                        transition-transform duration-300
-                                        ${activeWidget === widget.id ? 'rotate-180' : ''}
+                                        flex-shrink-0 w-14 h-14 rounded-xl
+                                        bg-gradient-to-br ${stat.gradient} text-white
+                                        flex items-center justify-center
+                                        shadow-lg
                                     `}>
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
+                                        {stat.icon}
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                                            <AnimatedCounter
+                                                value={stat.value}
+                                                prefix={stat.prefix || ''}
+                                                suffix={stat.suffix || ''}
+                                            />
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                            {stat.label}
+                                        </div>
                                     </div>
                                 </div>
-
-                                {/* Content Area */}
-                                <div className={`
-                                    overflow-hidden transition-all duration-500
-                                    ${activeWidget === widget.id ? 'max-h-96 p-6' : 'max-h-24 p-6'}
-                                `}>
-                                    <div
-                                        className={`
-                                            text-gray-700 dark:text-gray-300 leading-relaxed
-                                            ${activeWidget === widget.id ? '' : 'line-clamp-3'}
-                                        `}
-                                        dangerouslySetInnerHTML={{ __html: widget.content }}
-                                    />
-                                </div>
-
-                                {/* Hover Shine Effect */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                             </div>
                         ))}
                     </div>
                 )}
 
-                {/* Contact Cards with Glassmorphism */}
+                {/* Tabbed Content Section */}
+                {tabData.length > 0 && (
+                    <div
+                        data-widget="tabs"
+                        className={`
+                            bg-white dark:bg-dark-800 rounded-3xl overflow-hidden shadow-xl
+                            border border-gray-200 dark:border-dark-700
+                            mb-12 transition-all duration-700
+                            ${isVisible['tabs'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
+                        `}
+                    >
+                        {/* Tab Headers */}
+                        <div className="flex flex-wrap border-b border-gray-200 dark:border-dark-700">
+                            {tabData.map((tab, index) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(index)}
+                                    className={`
+                                        flex-1 min-w-[120px] px-4 md:px-6 py-4 md:py-5
+                                        flex items-center justify-center gap-2
+                                        font-semibold text-sm md:text-base
+                                        transition-all duration-300 relative
+                                        ${activeTab === index
+                                            ? 'text-primary-600 dark:text-primary-400'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                        }
+                                    `}
+                                >
+                                    <span className={`transition-transform duration-300 ${activeTab === index ? 'scale-110' : ''}`}>
+                                        {tab.icon}
+                                    </span>
+                                    <span className="hidden sm:inline">{tab.label}</span>
+
+                                    {/* Active indicator */}
+                                    {activeTab === index && (
+                                        <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${tab.color}`}></div>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Tab Content */}
+                        <div className="p-6 md:p-10">
+                            {tabData.map((tab, index) => (
+                                <div
+                                    key={tab.id}
+                                    className={`
+                                        transition-all duration-500
+                                        ${activeTab === index
+                                            ? 'opacity-100 translate-x-0'
+                                            : 'opacity-0 absolute -translate-x-8 pointer-events-none'
+                                        }
+                                    `}
+                                >
+                                    {activeTab === index && (
+                                        <>
+                                            <div className="flex items-center gap-4 mb-6">
+                                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tab.color} text-white flex items-center justify-center shadow-lg`}>
+                                                    {tab.icon}
+                                                </div>
+                                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                    {tab.label}
+                                                </h3>
+                                            </div>
+                                            <div
+                                                className="prose prose-lg dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 leading-relaxed"
+                                                dangerouslySetInnerHTML={{ __html: tab.content }}
+                                            />
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Contact Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {companyInfo.address && (
                         <div
                             data-widget="location"
                             className={`
-                                relative overflow-hidden rounded-2xl p-8
-                                bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg
-                                border border-gray-200/50 dark:border-dark-700/50
-                                transform transition-all duration-700 hover:scale-[1.02]
+                                relative overflow-hidden rounded-2xl p-6 md:p-8
+                                bg-white dark:bg-dark-800
+                                border border-gray-200 dark:border-dark-700
+                                transform transition-all duration-700 hover:shadow-lg
                                 ${isVisible['location'] ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}
                             `}
                         >
@@ -304,19 +308,16 @@ const AboutSection = ({ companyInfo }) => {
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Decorative Element */}
-                            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-gradient-to-br from-red-500/10 to-rose-500/5 rounded-full blur-2xl"></div>
                         </div>
                     )}
 
                     <div
                         data-widget="contact"
                         className={`
-                            relative overflow-hidden rounded-2xl p-8
-                            bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg
-                            border border-gray-200/50 dark:border-dark-700/50
-                            transform transition-all duration-700 hover:scale-[1.02]
+                            relative overflow-hidden rounded-2xl p-6 md:p-8
+                            bg-white dark:bg-dark-800
+                            border border-gray-200 dark:border-dark-700
+                            transform transition-all duration-700 hover:shadow-lg
                             ${isVisible['contact'] ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}
                         `}
                         style={{ transitionDelay: '100ms' }}
@@ -358,9 +359,6 @@ const AboutSection = ({ companyInfo }) => {
                                 </a>
                             )}
                         </div>
-
-                        {/* Decorative Element */}
-                        <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 rounded-full blur-2xl"></div>
                     </div>
                 </div>
             </div>

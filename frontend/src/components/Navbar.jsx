@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import HomeIcon from '@mui/icons-material/Home';
 import { getImageUrl } from '../utils/imageUtils';
 
 const Navbar = ({ companyInfo }) => {
     const { theme, toggleTheme } = useTheme();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('home');
+
+    // Check if we're on the home page
+    const isHomePage = location.pathname === '/';
 
     const navItems = [
         { id: 'home', label: 'Home' },
@@ -31,15 +38,17 @@ const Navbar = ({ companyInfo }) => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
 
-            // Update active section based on scroll position
-            const sections = navItems.map(item => item.id);
-            for (const sectionId of sections) {
-                const element = document.getElementById(sectionId);
-                if (element) {
-                    const rect = element.getBoundingClientRect();
-                    if (rect.top <= 100 && rect.bottom >= 100) {
-                        setActiveSection(sectionId);
-                        break;
+            // Only update active section on home page
+            if (isHomePage) {
+                const sections = navItems.map(item => item.id);
+                for (const sectionId of sections) {
+                    const element = document.getElementById(sectionId);
+                    if (element) {
+                        const rect = element.getBoundingClientRect();
+                        if (rect.top <= 100 && rect.bottom >= 100) {
+                            setActiveSection(sectionId);
+                            break;
+                        }
                     }
                 }
             }
@@ -47,19 +56,43 @@ const Navbar = ({ companyInfo }) => {
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isHomePage]);
 
-    const scrollToSection = (sectionId) => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-            const offset = 80; // Navbar height
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - offset;
+    // Reset active section when not on home page
+    useEffect(() => {
+        if (!isHomePage) {
+            setActiveSection('');
+        }
+    }, [isHomePage]);
 
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+    const handleNavClick = (sectionId) => {
+        setMobileOpen(false);
+
+        if (isHomePage) {
+            // On home page - scroll to section
+            const element = document.getElementById(sectionId);
+            if (element) {
+                const offset = 80; // Navbar height
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        } else {
+            // On detail page - navigate to home with hash
+            navigate(`/#${sectionId}`);
+        }
+    };
+
+    const handleLogoClick = () => {
+        if (isHomePage) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            navigate('/');
         }
         setMobileOpen(false);
     };
@@ -72,29 +105,26 @@ const Navbar = ({ companyInfo }) => {
         <>
             <nav
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                        ? 'bg-white/95 dark:bg-dark-900/95 backdrop-blur-md shadow-lg'
-                        : 'bg-transparent'
+                    ? 'bg-white/95 dark:bg-dark-900/95 backdrop-blur-md shadow-lg'
+                    : 'bg-transparent'
                     }`}
             >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo */}
                         <div
-                            className="flex items-center cursor-pointer"
-                            onClick={() => scrollToSection('home')}
+                            className="flex items-center cursor-pointer flex-shrink-0"
+                            onClick={handleLogoClick}
+                            style={{ width: '35%', maxWidth: '180px', minWidth: '120px' }}
                         >
                             {companyInfo?.logo_url ? (
                                 <img
                                     src={getImageUrl(companyInfo.logo_url)}
                                     alt={companyInfo.company_name}
-                                    className="h-12"
-                                    style={{
-                                        width: "65%",
-                                        height: "65%"
-                                    }}
+                                    className="w-full h-auto object-contain"
                                 />
                             ) : (
-                                <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-400 dark:to-primary-600 bg-clip-text text-transparent">
+                                <span className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-400 dark:to-primary-600 bg-clip-text text-transparent">
                                     {companyInfo?.company_name || 'Company'}
                                 </span>
                             )}
@@ -105,10 +135,10 @@ const Navbar = ({ companyInfo }) => {
                             {navItems.map((item) => (
                                 <button
                                     key={item.id}
-                                    onClick={() => scrollToSection(item.id)}
-                                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${activeSection === item.id
-                                            ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
-                                            : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                                    onClick={() => handleNavClick(item.id)}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${activeSection === item.id && isHomePage
+                                        ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
+                                        : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
                                         }`}
                                 >
                                     {item.label}
@@ -128,9 +158,10 @@ const Navbar = ({ companyInfo }) => {
                         </div>
 
                         {/* Mobile Menu Button */}
-                        <div className="lg:hidden flex items-center space-x-2">
+                        <div className="lg:hidden flex items-center space-x-1 sm:space-x-2">
                             <IconButton
                                 onClick={toggleTheme}
+                                size="small"
                                 sx={{
                                     color: theme === 'dark' ? '#fbbf24' : '#dc2626',
                                 }}
@@ -139,6 +170,7 @@ const Navbar = ({ companyInfo }) => {
                             </IconButton>
                             <IconButton
                                 onClick={handleDrawerToggle}
+                                size="small"
                                 sx={{
                                     color: theme === 'dark' ? '#f9fafb' : '#111827',
                                 }}
@@ -171,16 +203,30 @@ const Navbar = ({ companyInfo }) => {
                             <CloseIcon sx={{ color: theme === 'dark' ? '#f9fafb' : '#111827' }} />
                         </IconButton>
                     </div>
+
+                    {/* Show Home button when on detail pages */}
+                    {!isHomePage && (
+                        <div className="mb-4 pb-4 border-b border-gray-200 dark:border-dark-700">
+                            <button
+                                onClick={handleLogoClick}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-semibold"
+                            >
+                                <HomeIcon />
+                                Back to Home
+                            </button>
+                        </div>
+                    )}
+
                     <List>
                         {navItems.map((item) => (
                             <ListItem
                                 button
                                 key={item.id}
-                                onClick={() => scrollToSection(item.id)}
+                                onClick={() => handleNavClick(item.id)}
                                 sx={{
                                     borderRadius: '8px',
                                     mb: 1,
-                                    backgroundColor: activeSection === item.id
+                                    backgroundColor: activeSection === item.id && isHomePage
                                         ? (theme === 'dark' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(220, 38, 38, 0.1)')
                                         : 'transparent',
                                     '&:hover': {
@@ -192,10 +238,10 @@ const Navbar = ({ companyInfo }) => {
                                     primary={item.label}
                                     sx={{
                                         '& .MuiListItemText-primary': {
-                                            color: activeSection === item.id
+                                            color: activeSection === item.id && isHomePage
                                                 ? (theme === 'dark' ? '#ef4444' : '#dc2626')
                                                 : (theme === 'dark' ? '#f9fafb' : '#111827'),
-                                            fontWeight: activeSection === item.id ? 600 : 400,
+                                            fontWeight: activeSection === item.id && isHomePage ? 600 : 400,
                                         },
                                     }}
                                 />

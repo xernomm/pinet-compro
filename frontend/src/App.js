@@ -14,22 +14,54 @@ import CareerDetail from './pages/CareerDetail';
 // API Services
 import { companyAPI } from './api/apiService';
 
-// Scroll to top on route change
+// Scroll to top or to hash element on route change
 function ScrollToTopOnNavigate() {
-  const { pathname, hash } = useLocation();
+  const location = useLocation();
 
   useEffect(() => {
-    // If there's a hash, scroll to that element
-    if (hash) {
-      const element = document.querySelector(hash);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-        return;
+    const hash = location.hash;
+    const pathname = location.pathname;
+
+    // Function to scroll to hash element with offset
+    const scrollToHash = () => {
+      if (hash) {
+        const elementId = hash.substring(1);
+        const element = document.getElementById(elementId);
+        if (element) {
+          const navbarHeight = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          return true;
+        }
       }
+      return false;
+    };
+
+    // If on home page with hash, try to scroll with retries
+    if (pathname === '/' && hash) {
+      // Try immediately
+      if (!scrollToHash()) {
+        // If element not found, retry multiple times as DOM may still be loading
+        let attempts = 0;
+        const maxAttempts = 10;
+        const interval = setInterval(() => {
+          attempts++;
+          if (scrollToHash() || attempts >= maxAttempts) {
+            clearInterval(interval);
+          }
+        }, 100);
+        return () => clearInterval(interval);
+      }
+    } else if (!hash) {
+      // No hash, scroll to top
+      window.scrollTo(0, 0);
     }
-    // Otherwise scroll to top
-    window.scrollTo(0, 0);
-  }, [pathname, hash]);
+  }, [location]);
 
   return null;
 }

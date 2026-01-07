@@ -75,13 +75,13 @@ const ServiceDetail = ({ companyInfo }) => {
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Back Button */}
-                    <button
-                        onClick={() => navigate(-1)}
+                    <Link
+                        to="/#services"
                         className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors group"
                     >
                         <ArrowBackIcon className="mr-2 group-hover:-translate-x-1 transition-transform" />
                         Back to Services
-                    </button>
+                    </Link>
 
                     <div className="max-w-4xl">
                         <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg rounded-full px-4 py-2 mb-6">

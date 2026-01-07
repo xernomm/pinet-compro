@@ -99,13 +99,13 @@ const NewsDetail = ({ companyInfo }) => {
                     <div className="absolute inset-0 flex items-end">
                         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 w-full">
                             {/* Back Button */}
-                            <button
-                                onClick={() => navigate(-1)}
+                            <Link
+                                to="/#news"
                                 className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors group"
                             >
                                 <ArrowBackIcon className="mr-2 group-hover:-translate-x-1 transition-transform" />
                                 Back to News
-                            </button>
+                            </Link>
 
                             {/* Category & Featured */}
                             <div className="flex items-center gap-3 mb-4">
@@ -157,8 +157,8 @@ const NewsDetail = ({ companyInfo }) => {
                                     key={idx}
                                     onClick={() => setActiveImage(idx)}
                                     className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx
-                                            ? 'border-primary-500 ring-2 ring-primary-500/50'
-                                            : 'border-white/50 hover:border-white'
+                                        ? 'border-primary-500 ring-2 ring-primary-500/50'
+                                        : 'border-white/50 hover:border-white'
                                         }`}
                                 >
                                     <img

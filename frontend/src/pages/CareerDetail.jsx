@@ -5,7 +5,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import WorkIcon from '@mui/icons-material/Work';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import PaidIcon from '@mui/icons-material/Paid';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SchoolIcon from '@mui/icons-material/School';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -117,13 +116,13 @@ const CareerDetail = ({ companyInfo }) => {
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Back Button */}
-                    <button
-                        onClick={() => navigate(-1)}
+                    <Link
+                        to="/#careers"
                         className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors group"
                     >
                         <ArrowBackIcon className="mr-2 group-hover:-translate-x-1 transition-transform" />
                         Back to Careers
-                    </button>
+                    </Link>
 
                     <div className="max-w-4xl">
                         {/* Badges */}
