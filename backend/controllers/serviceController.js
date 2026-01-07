@@ -102,11 +102,39 @@ const sanitizeServiceData = (data) => {
   return sanitized;
 };
 
+// Helper function to create slug
+const createSlug = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')     // Replace spaces with -
+    .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+    .replace(/\-\-+/g, '-')   // Replace multiple - with single -
+    .replace(/^-+/, '')       // Trim - from start
+    .replace(/-+$/, '');      // Trim - from end
+};
+
 export const createService = async (req, res) => {
   try {
     const data = sanitizeServiceData(req.body);
     if (req.file) {
       data.image_url = `/uploads/images/${req.file.filename}`;
+    }
+
+    // Generate or clean slug
+    if (!data.slug && data.name) {
+      data.slug = createSlug(data.name);
+    } else if (data.slug) {
+      data.slug = createSlug(data.slug);
+    }
+
+    // Ensure slug is not empty
+    if (!data.slug) {
+      return res.status(400).json({
+        success: false,
+        message: 'Slug cannot be generated. Please provide a valid name or slug.'
+      });
     }
 
     const service = await Service.create(data);
@@ -118,6 +146,15 @@ export const createService = async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating service:', error);
+
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Service with this slug already exists',
+        error: error.message
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error creating service',
@@ -142,6 +179,19 @@ export const updateService = async (req, res) => {
       data.image_url = `/uploads/images/${req.file.filename}`;
     }
 
+    // Clean slug if provided
+    if (data.slug) {
+      data.slug = createSlug(data.slug);
+    }
+    // If slug is cleared/empty string, we might want to regenerate it from name, or keep old one?
+    // If user explicitly sends empty slug, let's regenerate from name (new name or old name)
+    if (data.slug === '' && data.name) {
+      data.slug = createSlug(data.name);
+    } else if (data.slug === '' && !data.name) {
+      // If updating without name and clearing slug, fallback to current name
+      data.slug = createSlug(service.name);
+    }
+
     await service.update(data);
 
     res.json({
@@ -151,6 +201,15 @@ export const updateService = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating service:', error);
+
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Service with this slug already exists',
+        error: error.message
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error updating service',
