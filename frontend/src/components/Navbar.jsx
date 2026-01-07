@@ -115,7 +115,7 @@ const Navbar = ({ companyInfo }) => {
                         <div
                             className="flex items-center cursor-pointer flex-shrink-0"
                             onClick={handleLogoClick}
-                            style={{ width: '35%', maxWidth: '180px', minWidth: '120px' }}
+                            style={{ width: '10%', maxWidth: '180px', minWidth: '110px' }}
                         >
                             {companyInfo?.logo_url ? (
                                 <img
