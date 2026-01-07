@@ -394,9 +394,7 @@ const ContactSection = ({ companyInfo }) => {
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
-                        allowFullScreen=""
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
+                        allowFullScreen={true}
                         className="rounded-2xl w-full h-full grayscale hover:grayscale-0 transition-all duration-500"
                     ></iframe>
 
