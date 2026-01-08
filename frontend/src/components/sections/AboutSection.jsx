@@ -147,8 +147,8 @@ const AboutSection = ({ companyInfo }) => {
 
             <div className="relative z-10">
                 {/* Header */}
-                <div className="text-center mb-12">
-                    <h2 className="section-title">About {companyInfo.company_name}</h2>
+                <div className="text-center">
+                    <h2 style={{ height: "60px" }} className="section-title m-0">About {companyInfo.company_name}</h2>
                     {companyInfo.tagline && (
                         <p className="section-subtitle">{companyInfo.tagline}</p>
                     )}
