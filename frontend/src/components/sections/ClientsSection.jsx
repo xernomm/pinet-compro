@@ -44,8 +44,68 @@ const ClientsSection = ({ clients }) => {
         );
     }
 
-    // Duplicate clients for infinite scroll effect
-    const duplicatedClients = [...activeClients, ...activeClients];
+    // Use activeClients directly (no duplication)
+
+    // Industry type styling config (similar to partners)
+    const industryTypeConfig = {
+        technology: {
+            gradient: 'from-blue-500 to-indigo-600',
+            bgLight: 'rgba(59, 130, 246, 0.1)',
+            text: '#3b82f6',
+            glow: 'rgba(59, 130, 246, 0.3)'
+        },
+        finance: {
+            gradient: 'from-emerald-500 to-teal-600',
+            bgLight: 'rgba(16, 185, 129, 0.1)',
+            text: '#10b981',
+            glow: 'rgba(16, 185, 129, 0.3)'
+        },
+        healthcare: {
+            gradient: 'from-rose-500 to-pink-600',
+            bgLight: 'rgba(244, 63, 94, 0.1)',
+            text: '#f43f5e',
+            glow: 'rgba(244, 63, 94, 0.3)'
+        },
+        manufacturing: {
+            gradient: 'from-amber-500 to-orange-600',
+            bgLight: 'rgba(245, 158, 11, 0.1)',
+            text: '#f59e0b',
+            glow: 'rgba(245, 158, 11, 0.3)'
+        },
+        retail: {
+            gradient: 'from-purple-500 to-violet-600',
+            bgLight: 'rgba(139, 92, 246, 0.1)',
+            text: '#8b5cf6',
+            glow: 'rgba(139, 92, 246, 0.3)'
+        },
+        education: {
+            gradient: 'from-cyan-500 to-sky-600',
+            bgLight: 'rgba(6, 182, 212, 0.1)',
+            text: '#06b6d4',
+            glow: 'rgba(6, 182, 212, 0.3)'
+        },
+        government: {
+            gradient: 'from-slate-500 to-gray-600',
+            bgLight: 'rgba(100, 116, 139, 0.1)',
+            text: '#64748b',
+            glow: 'rgba(100, 116, 139, 0.3)'
+        },
+        other: {
+            gradient: 'from-red-500 to-rose-600',
+            bgLight: 'rgba(220, 38, 38, 0.1)',
+            text: '#dc2626',
+            glow: 'rgba(220, 38, 38, 0.3)'
+        }
+    };
+
+    // Helper to get config based on industry
+    const getIndustryConfig = (industry) => {
+        if (!industry) return industryTypeConfig.other;
+        const lowerIndustry = industry.toLowerCase();
+        return Object.keys(industryTypeConfig).find(key => lowerIndustry.includes(key))
+            ? industryTypeConfig[Object.keys(industryTypeConfig).find(key => lowerIndustry.includes(key))]
+            : industryTypeConfig.other;
+    };
 
     return (
         <section id="clients" className="section-container overflow-hidden">
@@ -191,74 +251,101 @@ const ClientsSection = ({ clients }) => {
                             animationPlayState: isPaused ? 'paused' : 'running',
                         }}
                     >
-                        {duplicatedClients.map((client, index) => (
-                            <Tooltip
-                                key={`${client.id}-${index}`}
-                                title={
-                                    <div className="p-2">
-                                        <div className="font-semibold mb-1">{client.name}</div>
-                                        {client.industry && (
-                                            <div className="text-sm mb-1">Industry: {client.industry}</div>
-                                        )}
-                                        {client.description && (
-                                            <div className="text-sm mb-2">{client.description}</div>
-                                        )}
-                                        {client.project_description && (
-                                            <div className="text-sm mb-2">
-                                                <span className="font-semibold">Project:</span> {client.project_description}
-                                            </div>
-                                        )}
-                                        {client.collaboration_since && (
-                                            <div className="text-xs">Partner since {client.collaboration_since}</div>
-                                        )}
-                                    </div>
-                                }
-                                arrow
-                            >
-                                <div
-                                    className="flex-shrink-0 group cursor-pointer"
-                                    onClick={() => client.website_url && window.open(client.website_url, '_blank')}
+                        {activeClients.map((client, index) => {
+                            const config = getIndustryConfig(client.industry);
+                            return (
+                                <Tooltip
+                                    key={`${client.id}-${index}`}
+                                    title={
+                                        <div className="p-2">
+                                            <div className="font-semibold mb-1">{client.name}</div>
+                                            {client.industry && (
+                                                <div className="text-sm mb-1">Industry: {client.industry}</div>
+                                            )}
+                                            {client.description && (
+                                                <div className="text-sm mb-2">{client.description}</div>
+                                            )}
+                                            {client.project_description && (
+                                                <div className="text-sm mb-2">
+                                                    <span className="font-semibold">Project:</span> {client.project_description}
+                                                </div>
+                                            )}
+                                            {client.collaboration_since && (
+                                                <div className="text-xs">Client since {client.collaboration_since}</div>
+                                            )}
+                                        </div>
+                                    }
+                                    arrow
                                 >
-                                    <div className="relative bg-white dark:bg-dark-800 rounded-2xl p-6 w-40 h-32 flex flex-col items-center justify-center border border-gray-200 dark:border-dark-700 transition-all duration-300 group-hover:shadow-xl group-hover:scale-105 group-hover:border-primary-500/50">
-                                        {client.is_featured && (
-                                            <div className="absolute -top-2 -right-2">
-                                                <div className="bg-gradient-to-br from-red-500 to-rose-600 rounded-full p-1.5 shadow-lg">
-                                                    <StarIcon sx={{ fontSize: 14, color: 'white' }} />
-                                                </div>
-                                            </div>
-                                        )}
+                                    <div
+                                        className="flex-shrink-0 group cursor-pointer"
+                                        onClick={() => client.website_url && window.open(client.website_url, '_blank')}
+                                    >
+                                        <div
+                                            className="relative bg-white dark:bg-dark-800 rounded-2xl p-8 w-44 h-36 flex flex-col items-center justify-center border border-gray-200 dark:border-dark-700 transition-all duration-300 group-hover:shadow-xl group-hover:scale-105 overflow-hidden"
+                                            style={{
+                                                '--glow-color': config.glow,
+                                            }}
+                                        >
+                                            {/* Top gradient bar based on industry type */}
+                                            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${config.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`}></div>
 
-                                        {client.logo_url ? (
-                                            <img
-                                                src={getImageUrl(client.logo_url)}
-                                                alt={client.name}
-                                                className="max-w-full max-h-12 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
-                                            />
-                                        ) : (
-                                            <div className="text-center">
-                                                <div className="text-sm font-bold text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                                    {client.name}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {client.industry && (
-                                            <Chip
-                                                label={client.industry}
-                                                size="small"
-                                                sx={{
-                                                    mt: 1,
-                                                    fontSize: '0.65rem',
-                                                    height: '18px',
-                                                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                                                    color: '#dc2626',
+                                            {/* Glow effect on hover */}
+                                            <div
+                                                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                                                style={{
+                                                    boxShadow: `0 0 30px ${config.glow}, inset 0 0 20px ${config.glow}`,
+                                                    borderRadius: '1rem',
                                                 }}
-                                            />
-                                        )}
+                                            ></div>
+
+                                            {client.is_featured && (
+                                                <div className="absolute -top-2 -right-2 z-10">
+                                                    <div className="bg-gradient-to-br from-red-500 to-rose-600 rounded-full p-1.5 shadow-lg">
+                                                        <StarIcon sx={{ fontSize: 14, color: 'white' }} />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {client.logo_url ? (
+                                                <img
+                                                    src={getImageUrl(client.logo_url)}
+                                                    alt={client.name}
+                                                    className="relative z-10 max-w-full max-h-14 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                                                />
+                                            ) : (
+                                                <div className="relative z-10 text-center">
+                                                    <div className="text-sm font-bold text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                                        {client.name}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {client.industry && (
+                                                <Chip
+                                                    label={client.industry}
+                                                    size="small"
+                                                    sx={{
+                                                        mt: 2,
+                                                        fontSize: '0.65rem',
+                                                        height: '20px',
+                                                        textTransform: 'capitalize',
+                                                        backgroundColor: config.bgLight,
+                                                        color: config.text,
+                                                        fontWeight: 600,
+                                                        position: 'relative',
+                                                        zIndex: 10,
+                                                    }}
+                                                />
+                                            )}
+
+                                            {/* Shine effect on hover */}
+                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                        </div>
                                     </div>
-                                </div>
-                            </Tooltip>
-                        ))}
+                                </Tooltip>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

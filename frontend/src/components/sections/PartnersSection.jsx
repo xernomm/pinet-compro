@@ -50,8 +50,7 @@ const PartnersSection = ({ partners }) => {
         },
     };
 
-    // Duplicate partners for infinite scroll effect
-    const duplicatedPartners = [...activePartners, ...activePartners];
+    // Use activePartners directly (no duplication)
 
     // Group partners by type for visual organization
     const partnersByType = activePartners.reduce((acc, partner) => {
@@ -130,7 +129,7 @@ const PartnersSection = ({ partners }) => {
                                 animationPlayState: isPaused ? 'paused' : 'running',
                             }}
                         >
-                            {duplicatedPartners.map((partner, index) => {
+                            {activePartners.map((partner, index) => {
                                 const config = partnershipTypeConfig[partner.partnership_type] || partnershipTypeConfig.other;
                                 return (
                                     <Tooltip
@@ -216,7 +215,7 @@ const PartnersSection = ({ partners }) => {
                                     animationPlayState: isPaused ? 'paused' : 'running',
                                 }}
                             >
-                                {[...duplicatedPartners].reverse().map((partner, index) => {
+                                {[...activePartners].reverse().map((partner, index) => {
                                     const config = partnershipTypeConfig[partner.partnership_type] || partnershipTypeConfig.other;
                                     return (
                                         <Tooltip
