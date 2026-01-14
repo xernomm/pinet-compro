@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 
 // Pages
 import HomePage from './pages/HomePage';
+import CareersPage from './pages/CareersPage';
 import ProductDetail from './pages/ProductDetail';
 import ServiceDetail from './pages/ServiceDetail';
 import NewsDetail from './pages/NewsDetail';
@@ -86,6 +87,7 @@ function App() {
       <ScrollToTopOnNavigate />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/careers" element={<CareersPage />} />
         <Route path="/products/:slug" element={<ProductDetail companyInfo={companyInfo} />} />
         <Route path="/services/:slug" element={<ServiceDetail companyInfo={companyInfo} />} />
         <Route path="/news/:slug" element={<NewsDetail companyInfo={companyInfo} />} />

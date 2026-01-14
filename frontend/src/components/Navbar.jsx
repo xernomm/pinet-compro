@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -30,7 +30,7 @@ const Navbar = ({ companyInfo }) => {
         { id: 'clients', label: 'Clients' },
         { id: 'news', label: 'News' },
         { id: 'events', label: 'Events' },
-        { id: 'careers', label: 'Careers' },
+        { id: 'careers', label: 'Careers', isPage: true, path: '/careers' },
         { id: 'contact', label: 'Contact' },
     ];
 
@@ -66,8 +66,16 @@ const Navbar = ({ companyInfo }) => {
         }
     }, [isHomePage]);
 
-    const handleNavClick = (sectionId) => {
+    const handleNavClick = (item) => {
         setMobileOpen(false);
+
+        // If it's a separate page, navigate to it
+        if (item.isPage) {
+            navigate(item.path);
+            return;
+        }
+
+        const sectionId = item.id;
 
         if (isHomePage) {
             // On home page - scroll to section
@@ -135,10 +143,11 @@ const Navbar = ({ companyInfo }) => {
                             {navItems.map((item) => (
                                 <button
                                     key={item.id}
-                                    onClick={() => handleNavClick(item.id)}
-                                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${activeSection === item.id && isHomePage
-                                        ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
-                                        : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                                    onClick={() => handleNavClick(item)}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${(item.isPage && location.pathname === item.path) ||
+                                            (activeSection === item.id && isHomePage && !item.isPage)
+                                            ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
+                                            : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
                                         }`}
                                 >
                                     {item.label}
@@ -222,13 +231,15 @@ const Navbar = ({ companyInfo }) => {
                             <ListItem
                                 button
                                 key={item.id}
-                                onClick={() => handleNavClick(item.id)}
+                                onClick={() => handleNavClick(item)}
                                 sx={{
                                     borderRadius: '8px',
                                     mb: 1,
-                                    backgroundColor: activeSection === item.id && isHomePage
-                                        ? (theme === 'dark' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(220, 38, 38, 0.1)')
-                                        : 'transparent',
+                                    backgroundColor:
+                                        (item.isPage && location.pathname === item.path) ||
+                                            (activeSection === item.id && isHomePage && !item.isPage)
+                                            ? (theme === 'dark' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(220, 38, 38, 0.1)')
+                                            : 'transparent',
                                     '&:hover': {
                                         backgroundColor: theme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(220, 38, 38, 0.2)',
                                     },
@@ -238,10 +249,15 @@ const Navbar = ({ companyInfo }) => {
                                     primary={item.label}
                                     sx={{
                                         '& .MuiListItemText-primary': {
-                                            color: activeSection === item.id && isHomePage
-                                                ? (theme === 'dark' ? '#ef4444' : '#dc2626')
-                                                : (theme === 'dark' ? '#f9fafb' : '#111827'),
-                                            fontWeight: activeSection === item.id && isHomePage ? 600 : 400,
+                                            color:
+                                                (item.isPage && location.pathname === item.path) ||
+                                                    (activeSection === item.id && isHomePage && !item.isPage)
+                                                    ? (theme === 'dark' ? '#ef4444' : '#dc2626')
+                                                    : (theme === 'dark' ? '#f9fafb' : '#111827'),
+                                            fontWeight:
+                                                (item.isPage && location.pathname === item.path) ||
+                                                    (activeSection === item.id && isHomePage && !item.isPage)
+                                                    ? 600 : 400,
                                         },
                                     }}
                                 />

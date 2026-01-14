@@ -11,7 +11,6 @@ import PartnersSection from '../components/sections/PartnersSection';
 import ClientsSection from '../components/sections/ClientsSection';
 import NewsSection from '../components/sections/NewsSection';
 import EventsSection from '../components/sections/EventsSection';
-import CareersSection from '../components/sections/CareersSection';
 import ContactSection from '../components/sections/ContactSection';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -30,7 +29,6 @@ import {
     clientAPI,
     newsAPI,
     eventAPI,
-    careerAPI,
 } from '../api/apiService';
 
 const HomePage = () => {
@@ -46,7 +44,6 @@ const HomePage = () => {
         clients: [],
         news: [],
         events: [],
-        careers: [],
     });
 
     useEffect(() => {
@@ -65,7 +62,6 @@ const HomePage = () => {
                     clientsRes,
                     newsRes,
                     eventsRes,
-                    careersRes,
                 ] = await Promise.all([
                     companyAPI.getInfo().catch(() => ({ data: null })),
                     heroAPI.getAll().catch(() => ({ data: [] })),
@@ -76,7 +72,6 @@ const HomePage = () => {
                     clientAPI.getAll().catch(() => ({ data: [] })),
                     newsAPI.getAll().catch(() => ({ data: [] })),
                     eventAPI.getAll().catch(() => ({ data: [] })),
-                    careerAPI.getAll().catch(() => ({ data: [] })),
                 ]);
 
                 setData({
@@ -89,7 +84,6 @@ const HomePage = () => {
                     clients: Array.isArray(clientsRes.data) ? clientsRes.data : [],
                     news: Array.isArray(newsRes.data) ? newsRes.data : [],
                     events: Array.isArray(eventsRes.data) ? eventsRes.data : [],
-                    careers: Array.isArray(careersRes.data) ? careersRes.data : [],
                 });
             } catch (err) {
                 console.error('Error fetching data:', err);
@@ -162,7 +156,6 @@ const HomePage = () => {
                 <ClientsSection clients={data.clients} />
                 <NewsSection news={data.news} />
                 <EventsSection events={data.events} />
-                <CareersSection careers={data.careers} />
                 <ContactSection companyInfo={data.companyInfo} />
             </main>
 
