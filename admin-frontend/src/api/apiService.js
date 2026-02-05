@@ -160,4 +160,9 @@ export const contactAPI = {
   delete: (id) => api.delete(`/contacts/${id}`),
 };
 
+// Backup Services
+export const backupAPI = {
+  create: () => api.post('/backup'),
+};
+
 export default api;

@@ -22,6 +22,7 @@ import newsRoutes from './routes/newsRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import careerRoutes from './routes/careerRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
+import backupRoutes from './routes/backupRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,6 +65,7 @@ app.use('/api/news', newsRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/careers', careerRoutes);
 app.use('/api/contacts', contactRoutes);
+app.use('/api/backup', backupRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

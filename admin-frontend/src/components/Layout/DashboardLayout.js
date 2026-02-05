@@ -27,6 +27,7 @@ const DashboardLayout = ({ children }) => {
     { path: '/dashboard/events', label: 'Events', icon: '📅' },
     { path: '/dashboard/careers', label: 'Careers', icon: '💼' },
     { path: '/dashboard/contacts', label: 'Contacts', icon: '📧' },
+    { path: '/dashboard/backup', label: 'System Backup', icon: '💾' },
   ];
 
   return (
@@ -50,7 +51,7 @@ const DashboardLayout = ({ children }) => {
           ))}
         </nav>
 
-        <button 
+        <button
           className="toggle-sidebar"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
