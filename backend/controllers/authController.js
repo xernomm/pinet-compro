@@ -77,11 +77,16 @@ export const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: 'Please provide email/username and password'
       });
     }
 
-    const user = await User.findOne({ where: { email } });
+    // Cari user berdasarkan email atau username
+    const user = await User.findOne({
+      where: {
+        [Op.or]: [{ email }, { username: email }]
+      }
+    });
 
     if (!user) {
       return res.status(401).json({
