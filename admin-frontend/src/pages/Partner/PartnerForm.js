@@ -222,24 +222,31 @@ const PartnerForm = () => {
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Partnership Type</label>
-                                <input
-                                    type="text"
+                                <select
                                     name="partnership_type"
                                     value={formData.partnership_type}
                                     onChange={handleInputChange}
                                     className="form-control"
-                                    placeholder="e.g., Strategic, Technology, Distributor"
-                                />
+                                >
+                                    <option value="">Select type...</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="strategic">Strategic</option>
+                                    <option value="vendor">Vendor</option>
+                                    <option value="solution">Solution</option>
+                                    <option value="other">Other</option>
+                                </select>
                             </div>
                             <div className="form-group">
-                                <label>Partnership Since</label>
+                                <label>Partnership Since (Year)</label>
                                 <input
-                                    type="text"
+                                    type="number"
                                     name="partnership_since"
                                     value={formData.partnership_since}
                                     onChange={handleInputChange}
                                     className="form-control"
-                                    placeholder="e.g., 2020 or January 2020"
+                                    placeholder="e.g., 2020"
+                                    min="1900"
+                                    max="2100"
                                 />
                             </div>
                         </div>
