@@ -31,7 +31,7 @@ const Navbar = ({ companyInfo }) => {
         { id: 'news', label: 'News' },
         { id: 'events', label: 'Events' },
         { id: 'careers', label: 'Careers', isPage: true, path: '/careers' },
-        { id: 'contact', label: 'Contact' },
+        { id: 'contact', label: 'Contact Us' },
     ];
 
     useEffect(() => {
@@ -145,9 +145,9 @@ const Navbar = ({ companyInfo }) => {
                                     key={item.id}
                                     onClick={() => handleNavClick(item)}
                                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${(item.isPage && location.pathname === item.path) ||
-                                            (activeSection === item.id && isHomePage && !item.isPage)
-                                            ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
-                                            : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                                        (activeSection === item.id && isHomePage && !item.isPage)
+                                        ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20'
+                                        : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
                                         }`}
                                 >
                                     {item.label}
