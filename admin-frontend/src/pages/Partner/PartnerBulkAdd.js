@@ -110,11 +110,12 @@ const PartnerBulkAdd = () => {
                     <h4>📋 Instructions</h4>
                     <p>Paste your partner data below. Each line represents one partner.</p>
                     <p>Format: <code>Name, Website URL, Partnership Type</code></p>
+                    <p><strong>Valid Partnership Types:</strong> technology, strategic, vendor, solution, other</p>
                     <p>Example:</p>
                     <code>
-                        Microsoft, https://microsoft.com, Technology<br />
-                        AWS, https://aws.amazon.com, Cloud<br />
-                        Google, https://google.com, Strategic
+                        Microsoft, https://microsoft.com, technology<br />
+                        AWS, https://aws.amazon.com, strategic<br />
+                        Google, https://google.com, vendor
                     </code>
                 </div>
 
@@ -124,7 +125,7 @@ const PartnerBulkAdd = () => {
                         className="bulk-add-textarea"
                         value={inputText}
                         onChange={handleTextChange}
-                        placeholder="Name, Website URL, Partnership Type&#10;Microsoft, https://microsoft.com, Technology&#10;AWS, https://aws.amazon.com, Cloud"
+                        placeholder="Name, Website URL, Partnership Type&#10;Microsoft, https://microsoft.com, technology&#10;AWS, https://aws.amazon.com, strategic"
                         disabled={loading}
                     ></textarea>
                 </div>
