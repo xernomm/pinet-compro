@@ -222,12 +222,12 @@ const PartnerForm = () => {
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Partnership Type</label>
-                                <select
+                                <input
+                                    type="text"
                                     name="partnership_type"
                                     value={formData.partnership_type}
                                     onChange={handleInputChange}
                                     className="form-control"
-<<<<<<< HEAD
                                     list="partnership-types"
                                     placeholder="Type or select partnership type"
                                 />
@@ -251,16 +251,6 @@ const PartnerForm = () => {
                                 <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
                                     You can type a custom category or select from suggestions
                                 </small>
-=======
-                                >
-                                    <option value="">Select type...</option>
-                                    <option value="technology">Technology</option>
-                                    <option value="strategic">Strategic</option>
-                                    <option value="vendor">Vendor</option>
-                                    <option value="solution">Solution</option>
-                                    <option value="other">Other</option>
-                                </select>
->>>>>>> 967300a379f73561ce9229f5e12e5e67c7254f2f
                             </div>
                             <div className="form-group">
                                 <label>Partnership Since (Year)</label>
