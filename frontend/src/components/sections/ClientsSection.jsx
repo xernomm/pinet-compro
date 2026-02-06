@@ -60,6 +60,12 @@ const ClientsSection = ({ clients }) => {
             text: '#10b981',
             glow: 'rgba(16, 185, 129, 0.3)'
         },
+        banking: {
+            gradient: 'from-green-500 to-emerald-600',
+            bgLight: 'rgba(34, 197, 94, 0.1)',
+            text: '#22c55e',
+            glow: 'rgba(34, 197, 94, 0.3)'
+        },
         healthcare: {
             gradient: 'from-rose-500 to-pink-600',
             bgLight: 'rgba(244, 63, 94, 0.1)',
@@ -90,21 +96,110 @@ const ClientsSection = ({ clients }) => {
             text: '#64748b',
             glow: 'rgba(100, 116, 139, 0.3)'
         },
-        other: {
-            gradient: 'from-red-500 to-rose-600',
-            bgLight: 'rgba(220, 38, 38, 0.1)',
-            text: '#dc2626',
-            glow: 'rgba(220, 38, 38, 0.3)'
+        telecommunications: {
+            gradient: 'from-indigo-500 to-blue-600',
+            bgLight: 'rgba(99, 102, 241, 0.1)',
+            text: '#6366f1',
+            glow: 'rgba(99, 102, 241, 0.3)'
+        },
+        energy: {
+            gradient: 'from-yellow-500 to-orange-600',
+            bgLight: 'rgba(234, 179, 8, 0.1)',
+            text: '#eab308',
+            glow: 'rgba(234, 179, 8, 0.3)'
+        },
+        logistics: {
+            gradient: 'from-sky-500 to-blue-600',
+            bgLight: 'rgba(14, 165, 233, 0.1)',
+            text: '#0ea5e9',
+            glow: 'rgba(14, 165, 233, 0.3)'
+        },
+        transportation: {
+            gradient: 'from-teal-500 to-cyan-600',
+            bgLight: 'rgba(20, 184, 166, 0.1)',
+            text: '#14b8a6',
+            glow: 'rgba(20, 184, 166, 0.3)'
+        },
+        hospitality: {
+            gradient: 'from-fuchsia-500 to-pink-600',
+            bgLight: 'rgba(217, 70, 239, 0.1)',
+            text: '#d946ef',
+            glow: 'rgba(217, 70, 239, 0.3)'
+        },
+        media: {
+            gradient: 'from-red-500 to-orange-600',
+            bgLight: 'rgba(239, 68, 68, 0.1)',
+            text: '#ef4444',
+            glow: 'rgba(239, 68, 68, 0.3)'
+        },
+        insurance: {
+            gradient: 'from-lime-500 to-green-600',
+            bgLight: 'rgba(132, 204, 22, 0.1)',
+            text: '#84cc16',
+            glow: 'rgba(132, 204, 22, 0.3)'
+        },
+        construction: {
+            gradient: 'from-stone-500 to-neutral-600',
+            bgLight: 'rgba(120, 113, 108, 0.1)',
+            text: '#78716c',
+            glow: 'rgba(120, 113, 108, 0.3)'
+        },
+        agriculture: {
+            gradient: 'from-green-600 to-lime-600',
+            bgLight: 'rgba(22, 163, 74, 0.1)',
+            text: '#16a34a',
+            glow: 'rgba(22, 163, 74, 0.3)'
+        },
+        realestate: {
+            gradient: 'from-violet-500 to-purple-600',
+            bgLight: 'rgba(124, 58, 237, 0.1)',
+            text: '#7c3aed',
+            glow: 'rgba(124, 58, 237, 0.3)'
+        },
+        automotive: {
+            gradient: 'from-zinc-500 to-slate-600',
+            bgLight: 'rgba(113, 113, 122, 0.1)',
+            text: '#71717a',
+            glow: 'rgba(113, 113, 122, 0.3)'
+        },
+        pharmaceutical: {
+            gradient: 'from-pink-500 to-rose-600',
+            bgLight: 'rgba(236, 72, 153, 0.1)',
+            text: '#ec4899',
+            glow: 'rgba(236, 72, 153, 0.3)'
         }
     };
 
-    // Helper to get config based on industry
+    // Helper function to generate consistent color from string hash for unknown categories
+    const generateColorFromString = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const hue = Math.abs(hash % 360);
+        return {
+            gradient: `from-[hsl(${hue},70%,50%)] to-[hsl(${(hue + 30) % 360},70%,40%)]`,
+            bgLight: `hsla(${hue}, 70%, 50%, 0.1)`,
+            text: `hsl(${hue}, 70%, 45%)`,
+            glow: `hsla(${hue}, 70%, 50%, 0.3)`
+        };
+    };
+
+    // Helper to get config based on industry with dynamic color fallback
     const getIndustryConfig = (industry) => {
-        if (!industry) return industryTypeConfig.other;
-        const lowerIndustry = industry.toLowerCase();
-        return Object.keys(industryTypeConfig).find(key => lowerIndustry.includes(key))
-            ? industryTypeConfig[Object.keys(industryTypeConfig).find(key => lowerIndustry.includes(key))]
-            : industryTypeConfig.other;
+        if (!industry) return industryTypeConfig.technology;
+        const lowerIndustry = industry.toLowerCase().replace(/\s+/g, '');
+        // Check for exact match first
+        if (industryTypeConfig[lowerIndustry]) {
+            return industryTypeConfig[lowerIndustry];
+        }
+        // Check for partial match
+        const matchKey = Object.keys(industryTypeConfig).find(key => lowerIndustry.includes(key));
+        if (matchKey) {
+            return industryTypeConfig[matchKey];
+        }
+        // Generate dynamic color for unknown categories
+        return generateColorFromString(lowerIndustry);
     };
 
     return (

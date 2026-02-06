@@ -43,18 +43,91 @@ const PartnersSection = ({ partners }) => {
             bgLight: 'rgba(245, 158, 11, 0.1)',
             text: '#f59e0b'
         },
-        other: {
-            gradient: 'from-gray-500 to-slate-600',
-            bgLight: 'rgba(107, 114, 128, 0.1)',
-            text: '#6b7280'
+        integration: {
+            gradient: 'from-cyan-500 to-sky-600',
+            bgLight: 'rgba(6, 182, 212, 0.1)',
+            text: '#06b6d4'
+        },
+        reseller: {
+            gradient: 'from-rose-500 to-pink-600',
+            bgLight: 'rgba(244, 63, 94, 0.1)',
+            text: '#f43f5e'
+        },
+        distributor: {
+            gradient: 'from-lime-500 to-green-600',
+            bgLight: 'rgba(132, 204, 22, 0.1)',
+            text: '#84cc16'
+        },
+        consulting: {
+            gradient: 'from-fuchsia-500 to-purple-600',
+            bgLight: 'rgba(217, 70, 239, 0.1)',
+            text: '#d946ef'
+        },
+        training: {
+            gradient: 'from-yellow-500 to-amber-600',
+            bgLight: 'rgba(234, 179, 8, 0.1)',
+            text: '#eab308'
+        },
+        certification: {
+            gradient: 'from-red-500 to-rose-600',
+            bgLight: 'rgba(239, 68, 68, 0.1)',
+            text: '#ef4444'
+        },
+        development: {
+            gradient: 'from-indigo-500 to-blue-600',
+            bgLight: 'rgba(99, 102, 241, 0.1)',
+            text: '#6366f1'
+        },
+        cloud: {
+            gradient: 'from-sky-500 to-blue-600',
+            bgLight: 'rgba(14, 165, 233, 0.1)',
+            text: '#0ea5e9'
+        },
+        security: {
+            gradient: 'from-slate-600 to-gray-700',
+            bgLight: 'rgba(71, 85, 105, 0.1)',
+            text: '#475569'
+        },
+        infrastructure: {
+            gradient: 'from-stone-500 to-neutral-600',
+            bgLight: 'rgba(120, 113, 108, 0.1)',
+            text: '#78716c'
+        },
+        support: {
+            gradient: 'from-teal-500 to-emerald-600',
+            bgLight: 'rgba(20, 184, 166, 0.1)',
+            text: '#14b8a6'
         },
     };
 
-    // Use activePartners directly (no duplication)
+    // Helper function to generate consistent color from string hash for unknown categories
+    const generateColorFromString = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const hue = Math.abs(hash % 360);
+        return {
+            gradient: `from-[hsl(${hue},70%,50%)] to-[hsl(${(hue + 30) % 360},70%,40%)]`,
+            bgLight: `hsla(${hue}, 70%, 50%, 0.1)`,
+            text: `hsl(${hue}, 70%, 45%)`
+        };
+    };
+
+    // Get config for a type, with fallback to dynamic color generation
+    const getTypeConfig = (type) => {
+        if (!type) return partnershipTypeConfig.technology;
+        const lowerType = type.toLowerCase();
+        if (partnershipTypeConfig[lowerType]) {
+            return partnershipTypeConfig[lowerType];
+        }
+        // Generate dynamic color for unknown categories
+        return generateColorFromString(lowerType);
+    };
 
     // Group partners by type for visual organization
     const partnersByType = activePartners.reduce((acc, partner) => {
-        const type = partner.partnership_type || 'other';
+        const type = partner.partnership_type || 'Uncategorized';
         if (!acc[type]) acc[type] = [];
         acc[type].push(partner);
         return acc;
@@ -83,7 +156,7 @@ const PartnersSection = ({ partners }) => {
                 {Object.keys(partnersByType).length > 1 && (
                     <div className="flex flex-wrap justify-center gap-4 mb-12">
                         {Object.entries(partnersByType).map(([type, typePartners]) => {
-                            const config = partnershipTypeConfig[type] || partnershipTypeConfig.other;
+                            const config = getTypeConfig(type);
                             return (
                                 <div
                                     key={type}
@@ -130,7 +203,7 @@ const PartnersSection = ({ partners }) => {
                             }}
                         >
                             {activePartners.map((partner, index) => {
-                                const config = partnershipTypeConfig[partner.partnership_type] || partnershipTypeConfig.other;
+                                const config = getTypeConfig(partner.partnership_type);
                                 return (
                                     <Tooltip
                                         key={`${partner.id}-${index}`}
@@ -216,7 +289,7 @@ const PartnersSection = ({ partners }) => {
                                 }}
                             >
                                 {[...activePartners].reverse().map((partner, index) => {
-                                    const config = partnershipTypeConfig[partner.partnership_type] || partnershipTypeConfig.other;
+                                    const config = getTypeConfig(partner.partnership_type);
                                     return (
                                         <Tooltip
                                             key={`rev-${partner.id}-${index}`}

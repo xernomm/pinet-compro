@@ -233,8 +233,34 @@ const ClientForm = () => {
                                     value={formData.industry}
                                     onChange={handleInputChange}
                                     className="form-control"
-                                    placeholder="e.g., Technology, Finance, Healthcare"
+                                    list="industry-types"
+                                    placeholder="Type or select industry"
                                 />
+                                <datalist id="industry-types">
+                                    <option value="Technology" />
+                                    <option value="Finance" />
+                                    <option value="Banking" />
+                                    <option value="Healthcare" />
+                                    <option value="Manufacturing" />
+                                    <option value="Retail" />
+                                    <option value="Education" />
+                                    <option value="Government" />
+                                    <option value="Telecommunications" />
+                                    <option value="Energy" />
+                                    <option value="Logistics" />
+                                    <option value="Transportation" />
+                                    <option value="Hospitality" />
+                                    <option value="Media" />
+                                    <option value="Insurance" />
+                                    <option value="Construction" />
+                                    <option value="Agriculture" />
+                                    <option value="Real Estate" />
+                                    <option value="Automotive" />
+                                    <option value="Pharmaceutical" />
+                                </datalist>
+                                <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
+                                    You can type a custom industry or select from suggestions
+                                </small>
                             </div>
                         </div>
                     </div>

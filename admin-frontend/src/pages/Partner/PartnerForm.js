@@ -228,8 +228,29 @@ const PartnerForm = () => {
                                     value={formData.partnership_type}
                                     onChange={handleInputChange}
                                     className="form-control"
-                                    placeholder="e.g., Strategic, Technology, Distributor"
+                                    list="partnership-types"
+                                    placeholder="Type or select partnership type"
                                 />
+                                <datalist id="partnership-types">
+                                    <option value="Technology" />
+                                    <option value="Strategic" />
+                                    <option value="Vendor" />
+                                    <option value="Solution" />
+                                    <option value="Integration" />
+                                    <option value="Reseller" />
+                                    <option value="Distributor" />
+                                    <option value="Consulting" />
+                                    <option value="Training" />
+                                    <option value="Certification" />
+                                    <option value="Development" />
+                                    <option value="Cloud" />
+                                    <option value="Security" />
+                                    <option value="Infrastructure" />
+                                    <option value="Support" />
+                                </datalist>
+                                <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
+                                    You can type a custom category or select from suggestions
+                                </small>
                             </div>
                             <div className="form-group">
                                 <label>Partnership Since</label>
