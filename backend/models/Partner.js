@@ -29,8 +29,9 @@ const Partner = sequelize.define('partners', {
     allowNull: true
   },
   partnership_type: {
-    type: DataTypes.ENUM('technology', 'strategic', 'vendor', 'solution', 'other'),
-    defaultValue: 'strategic'
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'User-defined partnership type category'
   },
   partnership_since: {
     type: DataTypes.INTEGER,

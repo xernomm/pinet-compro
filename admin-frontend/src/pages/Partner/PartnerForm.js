@@ -222,19 +222,35 @@ const PartnerForm = () => {
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Partnership Type</label>
-                                <select
+                                <input
+                                    type="text"
                                     name="partnership_type"
                                     value={formData.partnership_type}
                                     onChange={handleInputChange}
                                     className="form-control"
-                                >
-                                    <option value="">Select type...</option>
-                                    <option value="technology">Technology</option>
-                                    <option value="strategic">Strategic</option>
-                                    <option value="vendor">Vendor</option>
-                                    <option value="solution">Solution</option>
-                                    <option value="other">Other</option>
-                                </select>
+                                    list="partnership-types"
+                                    placeholder="Type or select partnership type"
+                                />
+                                <datalist id="partnership-types">
+                                    <option value="Technology" />
+                                    <option value="Strategic" />
+                                    <option value="Vendor" />
+                                    <option value="Solution" />
+                                    <option value="Integration" />
+                                    <option value="Reseller" />
+                                    <option value="Distributor" />
+                                    <option value="Consulting" />
+                                    <option value="Training" />
+                                    <option value="Certification" />
+                                    <option value="Development" />
+                                    <option value="Cloud" />
+                                    <option value="Security" />
+                                    <option value="Infrastructure" />
+                                    <option value="Support" />
+                                </datalist>
+                                <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
+                                    You can type a custom category or select from suggestions
+                                </small>
                             </div>
                             <div className="form-group">
                                 <label>Partnership Since (Year)</label>
