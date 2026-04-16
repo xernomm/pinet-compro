@@ -17,32 +17,30 @@ module.exports = {
     },
     {
       name: 'pinet-frontend',
-      script: 'npm',
-      args: 'start',
+      script: './node_modules/.bin/serve',
+      args: ['-s', 'build', '-l', '3000'],
       cwd: '/home/vanka-ai/pinet-compro/frontend',
       instances: 1,
-      exec_mode: 'cluster',
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
-      max_memory_restart: '500M',
+      max_memory_restart: '1G',
       env: {
-        PORT: 3000,
-        BROWSER: 'none'
+        NODE_ENV: 'production'
       }
     },
     {
       name: 'pinet-admin-frontend',
-      script: 'npm',
-      args: 'start',
+      script: './node_modules/.bin/serve',
+      args: ['-s', 'build', '-l', '3001'],
       cwd: '/home/vanka-ai/pinet-compro/admin-frontend',
       instances: 1,
-      exec_mode: 'cluster',
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
-      max_memory_restart: '500M',
+      max_memory_restart: '1G',
       env: {
-        PORT: 3001,
-        BROWSER: 'none'
+        NODE_ENV: 'production'
       }
     }
   ]

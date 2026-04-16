@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.30.27:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://compro.prima-integrasi.co.id/api';
 
 // Create axios instance
 const api = axios.create({
