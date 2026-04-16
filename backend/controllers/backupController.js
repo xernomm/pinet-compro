@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,7 +28,7 @@ export const createBackup = async (req, res) => {
 
         const backupDatabase = () => {
             return new Promise((resolve, reject) => {
-                exec(mysqldumpCommand, (error, stdout, stderr) => {
+                execFile('bash', ['-lc', mysqldumpCommand], (error, stdout, stderr) => {
                     if (error) {
                         console.error(`Error executing mysqldump: ${error}`);
                         reject(error);
@@ -74,6 +74,43 @@ export const createBackup = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Backup failed',
+            error: error.message
+        });
+    }
+};
+
+export const syncUploads = async (req, res) => {
+    try {
+        const syncScript = process.env.UPLOAD_SYNC_SCRIPT || '/opt/compro-next-pinet/scripts/sync-uploads.sh';
+
+        if (!fs.existsSync(syncScript)) {
+            console.error('Sync script not found:', syncScript);
+            return res.status(500).json({
+                success: false,
+                message: 'Upload sync script not found on server'
+            });
+        }
+
+        await new Promise((resolve, reject) => {
+            execFile(syncScript, { env: process.env }, (error, stdout, stderr) => {
+                if (error) {
+                    console.error('Upload sync failed:', stderr || error.message);
+                    return reject(error);
+                }
+                console.log('Upload sync output:', stdout);
+                resolve(stdout);
+            });
+        });
+
+        res.json({
+            success: true,
+            message: 'Upload sync completed successfully'
+        });
+    } catch (error) {
+        console.error('Upload sync failed:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Upload sync failed',
             error: error.message
         });
     }
