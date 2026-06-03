@@ -90,7 +90,7 @@ const EventDetail = ({ companyInfo }) => {
         seminar: 'from-blue-500 to-indigo-600',
         workshop: 'from-purple-500 to-violet-600',
         conference: 'from-emerald-500 to-teal-600',
-        webinar: 'from-cyan-500 to-blue-600',
+        webinar: 'from-slate-400 to-slate-600',
         training: 'from-amber-500 to-orange-600',
         exhibition: 'from-rose-500 to-red-600',
         other: 'from-gray-500 to-slate-600',
